@@ -9,11 +9,11 @@ public class Semantico implements Constants {
     Stack<Integer> pilhaEscopo = new Stack();
     Stack<Integer> pilhaExp = new Stack();
     List<TabelaDeSimbolos> tabSimb = new ArrayList<>();
-    String nome = "", tipo = "", warning = "", nome_func;
+    String nome = "", tipo = "", warning = "", nome_func="";
     boolean inicializada = false, parametros = false, vet = false, ref = false, func = false,seFunc=false;
     SemanticTable sTb = new SemanticTable();
     int escopo = 0, tipo_id = -1, tipo_exp = -1, tipo1 = -1, tipo2 = -1, operacao = -1, resultAtrib = -1, ordemParam = -1, posicao = 1,
-            escopo_temp=-1, qtd_param = 0 , qtd_chama_param = 0,tipo_param = -1 ;
+            escopo_temp=-1, qtd_param = 0 , qtd_chama_param = 0,tipo_param = -1,escopo_inter_func = 0;
 
     public List<TabelaDeSimbolos> getTabSimb() {
         return tabSimb;
@@ -58,12 +58,22 @@ public class Semantico implements Constants {
     public int buscEscopoInternoFunc( String id,int  escopo ){
         for (TabelaDeSimbolos it : tabSimb) {
           
-            if (it.getNome().equals(id) && it.getEscopo() != escopo) {
-                it.getEscopoInternoFunc();
+            if (it.getNome().equals(id) && it.getEscopo() == escopo && it.isFunc()) {
+               return it.getEscopoInternoFunc();
             }
         }
         
         return -1;
+    }
+    
+    public int buscaEscopoFunc(String id){
+         for (TabelaDeSimbolos it : tabSimb) {
+          
+            if (it.getNome().equals(id) && it.isFunc()) {
+                return it.getEscopo();
+            }
+        }
+         return -1;
     }
     
     public void insereQtdParam(String id, int escopo, int qtd_param) {
@@ -89,7 +99,7 @@ public class Semantico implements Constants {
     
     public String buscaTipoParam(int posi ,int  escopo){
         for (TabelaDeSimbolos it : tabSimb) {
-            if (it.getPos()== posi && it.getEscopo()== escopo )  {
+            if (it.getPos()== posi && it.getEscopo()== escopo && it.isParametros() )  {
                 
                 return it.getTipo();
             }
@@ -274,7 +284,7 @@ public class Semantico implements Constants {
             case 10:
                 escopo_temp = pilhaEscopo.peek();
                 escopo++;
-                if(buscaSeFuncTabela(nome, escopo_temp)){
+                if(buscaSeFuncTabela(nome_func, escopo_temp)){
                     insereEscopoInternoFuncParam(nome, escopo_temp, escopo);
                 }
                 pilhaEscopo.push(escopo);
@@ -483,7 +493,7 @@ public class Semantico implements Constants {
                 posicao++;
                 break;
             case 33:
-                insereQtdParam(nome, escopo_temp, posicao);
+                insereQtdParam(nome_func, escopo_temp, posicao);
                 posicao = 1;
                 break;
             case 34:
@@ -492,8 +502,11 @@ public class Semantico implements Constants {
             case 35:
                 qtd_chama_param++;
                 tipo_exp=pilhaExp.pop();
-                escopo_temp = buscEscopoInternoFunc(nome, escopo);
-                tipo_param=tipoStringToNum(buscaTipoParam(posicao, escopo_temp));
+                
+                tipo_param=tipoStringToNum(buscaTipoParam(qtd_chama_param, escopo_inter_func));
+                if(tipo_param == -1){
+                    throw new SemanticError("ERRO: Funcao: "+nome_func+" possui "+buscaQtdFunc(nome_func) +" parametros e foram informados Parametros alem do necessario");
+                }
                 resultAtrib = sTb.atribType(tipo_param,tipo_exp);
                 if(resultAtrib == sTb.ERR){
                      throw new SemanticError("ERRO: Tipo Incompativel com o Parametro da funcao");
@@ -506,6 +519,8 @@ public class Semantico implements Constants {
                 } else {
                    
                         nome_func = nome;
+                        escopo_temp = buscaEscopoFunc(nome);
+                        escopo_inter_func = buscEscopoInternoFunc(nome_func, escopo_temp);
                         tipo_id = tipoStringToNum(buscaTipoTabela(nome));
                         pilhaExp.push(tipo_id);
                         insereUsada(nome, escopo);

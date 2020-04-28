@@ -14,7 +14,7 @@ import javax.swing.table.DefaultTableModel;
 public class TabelaDeSimbolos {
     private String nome = "",tipo = "";
     private boolean inicializada,parametros,vet,ref,func,usada;
-    int escopo = 0 , pos=0, escopoInternoFunc=0, qtd_param = 0;
+    int escopo = 0 , pos=0, escopoInternoFunc=-1, qtd_param = 0;
     public TabelaDeSimbolos() {
     }
 
