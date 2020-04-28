@@ -24,18 +24,21 @@ public class SemanticTable {
    public static final int DIV = 3;
    public static final int REL = 4; // qualquer operador relaciona
    public static final int LOG = 5; 
+   public static final int NEGACAO = 6;
+   public static final int SUF = 7;
+   public static final int NEGATIVO = 8;
    
    
 
    // TIPO DE RETORNO DAS EXPRESSOES ENTRE TIPOS
    // 5 x 5 X 5  = TIPO X TIPO X OPER
    static int expTable [][][] = 
-                {/*       INT           */ /*       FLOAT         */ /*      CHAR           */ /*      STRING         */ /*     BOOL            */
-     /*   INT*/ {{INT,INT,INT,FLO,BOO,ERR},{FLO,FLO,FLO,FLO,BOO,ERR},{ERR,ERR,ERR,ERR,ERR,ERR},{ERR,ERR,ERR,ERR,ERR,ERR},{ERR,ERR,ERR,ERR,ERR,ERR}},
-     /* FLOAT*/ {{FLO,FLO,FLO,FLO,BOO,ERR},{FLO,FLO,FLO,FLO,BOO,ERR},{ERR,ERR,ERR,ERR,ERR,ERR},{ERR,ERR,ERR,ERR,ERR,ERR},{ERR,ERR,ERR,ERR,ERR,ERR}}, 
-     /*  CHAR*/ {{INT,INT,INT,FLO,ERR,ERR},{FLO,FLO,FLO,FLO,ERR,ERR},{INT,INT,INT,FLO,ERR,ERR},{STR,ERR,ERR,ERR,ERR,ERR},{ERR,ERR,ERR,ERR,ERR,ERR}}, 
-     /*STRING*/ {{ERR,ERR,ERR,ERR,ERR,ERR},{ERR,ERR,ERR,ERR,ERR,ERR},{STR,ERR,ERR,ERR,ERR,ERR},{STR,ERR,ERR,ERR,ERR,ERR},{ERR,ERR,ERR,ERR,ERR,ERR}},
-     /*  BOOL*/ {{ERR,ERR,ERR,ERR,ERR,ERR},{ERR,ERR,ERR,ERR,ERR,ERR},{ERR,ERR,ERR,ERR,ERR,ERR},{ERR,ERR,ERR,ERR,ERR,ERR},{ERR,ERR,ERR,ERR,ERR,BOO}}                        
+                {/*                   INT           */ /*                   FLOAT         */ /*                  CHAR           */ /*                  STRING         */ /*                  BOOL            */
+     /*   INT*/ {{INT,INT,INT,FLO,BOO,ERR,ERR,INT,INT},{FLO,FLO,FLO,FLO,BOO,ERR,ERR,FLO,FLO},{ERR,ERR,ERR,ERR,ERR,ERR,ERR,ERR,ERR},{ERR,ERR,ERR,ERR,ERR,ERR,ERR,ERR,ERR},{ERR,ERR,ERR,ERR,ERR,ERR,ERR,ERR,ERR}},
+     /* FLOAT*/ {{FLO,FLO,FLO,FLO,BOO,ERR,ERR,FLO,FLO},{FLO,FLO,FLO,FLO,BOO,ERR,ERR,FLO,FLO},{ERR,ERR,ERR,ERR,ERR,ERR,ERR,ERR,ERR},{ERR,ERR,ERR,ERR,ERR,ERR,ERR,ERR,ERR},{ERR,ERR,ERR,ERR,ERR,ERR,ERR,ERR,ERR}}, 
+     /*  CHAR*/ {{INT,INT,INT,FLO,ERR,ERR,ERR,ERR,ERR},{FLO,FLO,FLO,FLO,ERR,ERR,ERR,ERR,ERR},{INT,INT,INT,FLO,ERR,ERR,ERR,ERR,ERR},{STR,ERR,ERR,ERR,ERR,ERR,ERR,ERR,ERR},{ERR,ERR,ERR,ERR,ERR,ERR,ERR,ERR,ERR}}, 
+     /*STRING*/ {{ERR,ERR,ERR,ERR,ERR,ERR,ERR,ERR,ERR},{ERR,ERR,ERR,ERR,ERR,ERR,ERR,ERR,ERR},{STR,ERR,ERR,ERR,ERR,ERR,ERR,ERR,ERR},{STR,ERR,ERR,ERR,ERR,ERR,ERR,ERR,ERR},{ERR,ERR,ERR,ERR,ERR,ERR,ERR,ERR,ERR}},
+     /*  BOOL*/ {{ERR,ERR,ERR,ERR,ERR,ERR,ERR,ERR,ERR},{ERR,ERR,ERR,ERR,ERR,ERR,ERR,ERR,ERR},{ERR,ERR,ERR,ERR,ERR,ERR,ERR,ERR,ERR},{ERR,ERR,ERR,ERR,ERR,ERR,ERR,ERR,ERR},{ERR,ERR,ERR,ERR,ERR,BOO,BOO,ERR,ERR}}                        
                 };
    
    // atribuicoes compativeis 
