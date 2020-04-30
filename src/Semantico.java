@@ -224,7 +224,7 @@ public class Semantico implements Constants {
 
             if (it.getEscopo() == escopo && !it.isFunc() && !it.isParametros() && !it.isUsada()) {
 
-                warning += "WARNING: Varivel" + it.getNome() + "declarada e nao utilizada \n";
+                warning += "WARNING: Varivel " + it.getNome() + " declarada e nao utilizada \n";
             }
         }
     }
@@ -295,7 +295,7 @@ public class Semantico implements Constants {
             case 3:
                 nome = token.getLexeme();
                 if (!buscaNomeEscoposMaiores(nome)) {
-                    throw new SemanticError("ERRO: Variavel:" + nome + " Não Declarada");
+                    throw new SemanticError("ERRO: Variavel: " + nome + " Não Declarada");
                 } else {
                     tipo_id = tipoStringToNum(buscaTipoTabela(nome));
                     pilhaExp.push(tipo_id);
@@ -335,10 +335,10 @@ public class Semantico implements Constants {
                 pilhaEscopo.pop();
                 break;
             case 12:
-
+                tipo_id = pilhaExp.pop();
                 resultAtrib = sTb.atribType(tipo_id, tipo_exp);
                 if (resultAtrib == sTb.ERR) {
-                    throw new SemanticError("ERRO: Tipos imcompativeis");
+                    throw new SemanticError("ERRO: Tipos incompativeis");
                 }
                 if (resultAtrib == sTb.WAR) {
                     warning += "WARNING: Posivel perda de precisao  na atribuição de tipo " + tipoNumToString(tipo_exp) + " para tipo " + tipoNumToString(tipo_id) + "\n";
@@ -354,7 +354,7 @@ public class Semantico implements Constants {
                 if (tipo_exp == sTb.ERR) {
                     pilhaExp.push(tipo_exp);
                 } else {
-                    throw new SemanticError("ERRO: Tipos imcompativeis");
+                    throw new SemanticError("ERRO: Tipos incompativeis");
                 }
                 break;
 
@@ -417,7 +417,7 @@ public class Semantico implements Constants {
                 tipo1 = pilhaExp.pop();
                 tipo_exp = sTb.resultType(tipo1, tipo2, operacao);
                 if (tipo_exp == sTb.ERR) {
-                    throw new SemanticError("ERRO: Tipos imcompativeis");
+                    throw new SemanticError("ERRO: Tipos incompativeis");
 
                 } else {
                     pilhaExp.push(tipo_exp);
@@ -430,7 +430,7 @@ public class Semantico implements Constants {
                 tipo1 = pilhaExp.pop();
                 tipo_exp = sTb.resultType(tipo1, tipo2, operacao);
                 if (tipo_exp == sTb.ERR) {
-                    throw new SemanticError("ERRO: Tipos imcompativeis");
+                    throw new SemanticError("ERRO: Tipos incompativeis");
 
                 } else {
                     pilhaExp.push(tipo_exp);
@@ -442,7 +442,7 @@ public class Semantico implements Constants {
                 tipo1 = pilhaExp.pop();
                 tipo_exp = sTb.resultType(tipo1, tipo2, operacao);
                 if (tipo_exp == sTb.ERR) {
-                    throw new SemanticError("ERRO: Tipos imcompativeis");
+                    throw new SemanticError("ERRO: Tipos incompativeis");
 
                 } else {
                     pilhaExp.push(tipo_exp);
@@ -454,7 +454,7 @@ public class Semantico implements Constants {
                 tipo1 = pilhaExp.pop();
                 tipo_exp = sTb.resultType(tipo1, tipo2, operacao);
                 if (tipo_exp == sTb.ERR) {
-                    throw new SemanticError("ERRO: Tipos imcompativeis");
+                    throw new SemanticError("ERRO: Tipos incompativeis");
                 } else {
                     pilhaExp.push(tipo_exp);
 
@@ -466,7 +466,7 @@ public class Semantico implements Constants {
                 tipo1 = pilhaExp.pop();
                 tipo_exp = sTb.resultType(tipo1, tipo2, operacao);
                 if (tipo_exp == sTb.ERR) {
-                    throw new SemanticError("ERRO: Tipos imcompativeis");
+                    throw new SemanticError("ERRO: Tipos incompativeis");
 
                 } else {
                     pilhaExp.push(tipo_exp);
@@ -478,7 +478,7 @@ public class Semantico implements Constants {
                 tipo1 = pilhaExp.pop();
                 tipo_exp = sTb.resultType(tipo1, tipo2, operacao);
                 if (tipo_exp == sTb.ERR) {
-                    throw new SemanticError("ERRO: Tipos imcompativeis");
+                    throw new SemanticError("ERRO: Tipos incompativeis");
 
                 } else {
                     pilhaExp.push(tipo_exp);
@@ -490,7 +490,7 @@ public class Semantico implements Constants {
                 tipo1 = pilhaExp.pop();
                 tipo_exp = sTb.resultType(tipo1, tipo2, operacao);
                 if (tipo_exp == sTb.ERR) {
-                    throw new SemanticError("ERRO: Tipos imcompativeis");
+                    throw new SemanticError("ERRO: Tipos incompativeis");
 
                 } else {
                     pilhaExp.push(tipo_exp);
@@ -502,7 +502,7 @@ public class Semantico implements Constants {
                 tipo1 = pilhaExp.pop();
                 tipo_exp = sTb.resultType(tipo1, tipo2, operacao);
                 if (tipo_exp == sTb.ERR) {
-                    throw new SemanticError("ERRO: Tipos imcompativeis");
+                    throw new SemanticError("ERRO: Tipos incompativeis");
 
                 } else {
                     pilhaExp.push(tipo_exp);
@@ -511,7 +511,7 @@ public class Semantico implements Constants {
             case 30:
                 nome = token.getLexeme();
                 if (!buscaNomeEscoposMaiores(nome)) {
-                    throw new SemanticError("ERRO: Variavel:" + nome + " Não Declarada");
+                    throw new SemanticError("ERRO: Variavel: " + nome + " Não Declarada");
                 } else {
 
                     tipo_id = tipoStringToNum(buscaTipoTabela(nome));
@@ -523,7 +523,7 @@ public class Semantico implements Constants {
                 break;
             case 31:
                 if (!buscaNomeTabela(nome, escopo)) {
-                    throw new SemanticError("ERRO: Variavel:" + nome + " Não Declarada");
+                    throw new SemanticError("ERRO: Variavel: " + nome + " Não Declarada");
                 }
                 insereParam(nome, escopo);
                 inserePosParam(nome, escopo, posicao);
@@ -567,10 +567,9 @@ public class Semantico implements Constants {
                 }
                 break;
             case 37:
-
                 qtd_param = buscaQtdFunc(nome_func);
                 if (qtd_param != qtd_chama_param) {
-                    throw new SemanticError("ERRO: Funcao: " + nome_func + " possui " + qtd_param + " parametros e foram informados " + qtd_chama_param + "parametro(s)");
+                    throw new SemanticError("ERRO: Funcao: " + nome_func + " possui " + qtd_param + " parametros e foram informados " + qtd_chama_param + " parametro(s)");
                 }
                 break;
             case 38:
@@ -616,7 +615,7 @@ public class Semantico implements Constants {
                 tipo_exp = pilhaExp.pop();
                 resultAtrib = sTb.atribType(tipoStringToNum(buscaTipoTabela(buscaNomePeloEscopoInterno(pilhaEscopo.peek()))), tipo_exp);
                 if (resultAtrib == sTb.ERR) {
-                    throw new SemanticError("ERRO: Retorno é do tipo: " + tipoNumToString(tipo_exp) + "e funcao: "
+                    throw new SemanticError("ERRO: Retorno é do tipo: " + tipoNumToString(tipo_exp) + " e funcao: "
                             + buscaNomePeloEscopoInterno(pilhaEscopo.peek()) + " possui tipo: " + buscaTipoTabela(buscaNomePeloEscopoInterno(pilhaEscopo.peek())));
                 }
                 break;
@@ -643,7 +642,7 @@ public class Semantico implements Constants {
                 tipo1 = pilhaExp.pop();
                 tipo_exp = sTb.resultType(tipo1, tipo2, operacao);
                 if (tipo_exp == sTb.ERR) {
-                    throw new SemanticError("ERRO: Tipos imcompativeis");
+                    throw new SemanticError("ERRO: Tipos incompativeis");
 
                 } else {
                     pilhaExp.push(tipo_exp);
@@ -655,7 +654,7 @@ public class Semantico implements Constants {
                 tipo1 = pilhaExp.pop();
                 tipo_exp = sTb.resultType(tipo1, tipo2, operacao);
                 if (tipo_exp == sTb.ERR) {
-                    throw new SemanticError("ERRO: Tipos imcompativeis");
+                    throw new SemanticError("ERRO: Tipos incompativeis");
 
                 } else {
                     pilhaExp.push(tipo_exp);
