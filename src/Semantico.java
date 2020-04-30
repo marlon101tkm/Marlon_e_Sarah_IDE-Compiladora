@@ -24,28 +24,40 @@ public class Semantico implements Constants {
         for (TabelaDeSimbolos it : tabSimb) {
 
             if (it.getNome().equals(id) && it.getEscopo() == escop) {
-                //System.out.println("achou");
-                //System.out.println(it.getNome());
+               
                 return true;
             }
         }
-        // System.out.println("n achou");
+        
         return false;
     }
+    
+    public int  BuscaEscopoVar(String id){
+          for (TabelaDeSimbolos it : tabSimb) {
+
+            if ( !it.isFunc()&& it.getNome().equals(id) ) {
+               
+               return it.getEscopo();
+            }
+        }
+          return -1;
+    }
+    
     
     public boolean buscaNomeTabelaVar(String id, int escop) {
 //        System.err.println(tabSimb.isEmpty());
         for (TabelaDeSimbolos it : tabSimb) {
 
             if ( !it.isFunc() && it.getNome().equals(id) && it.getEscopo() == escop) {
-                //System.out.println("achou");
-                //System.out.println(it.getNome());
+  
                 return true;
             }
         }
-        // System.out.println("n achou");
+        
         return false;
     }
+    
+   
 
     public boolean buscaNomeEscoposMaiores(String id) {
 
@@ -120,7 +132,39 @@ public class Semantico implements Constants {
         }
         return -1;
     }
+    
+    public boolean buscaSeInicializada(String id,int escopo){
+        for (TabelaDeSimbolos it : tabSimb) {
 
+            if (!it.isFunc() && it.getNome().equals(id) && it.getEscopo() == escopo && !it.isInicializada() ) {
+                return true;
+            }
+        }
+        
+        return  false;
+    }
+    
+     public boolean buscaSeInicializadaEscoposMaiores(String id) {
+
+        while (!pilhaEscopo.isEmpty()) {
+            pilhaEscAux.push(pilhaEscopo.pop());
+            if (buscaSeInicializada(id, pilhaEscAux.peek())) {
+                while (!pilhaEscAux.isEmpty()) {
+                    pilhaEscopo.push(pilhaEscAux.pop());
+                }
+                return true;
+            }
+        }
+        
+        while(!pilhaEscAux.isEmpty()){
+            pilhaEscopo.push(pilhaEscAux.pop());
+        }
+        
+        return false;
+    }
+    
+    
+    
     public void insereQtdParam(String id, int escopo, int qtd_param) {
         for (TabelaDeSimbolos it : tabSimb) {
 
@@ -285,6 +329,7 @@ public class Semantico implements Constants {
                     elemento.setNome(nome);
                     elemento.setTipo(tipo);
                     tipo_id = tipoStringToNum(tipo);
+                    pilhaExp.push(tipo_id);
 
                     elemento.setEscopo(pilhaEscopo.peek());
 
@@ -343,7 +388,7 @@ public class Semantico implements Constants {
                 if (resultAtrib == sTb.WAR) {
                     warning += "WARNING: Posivel perda de precisao  na atribuição de tipo " + tipoNumToString(tipo_exp) + " para tipo " + tipoNumToString(tipo_id) + "\n";
                 }
-                insereInicializar(nome, escopo);
+                insereInicializar(nome, BuscaEscopoVar(nome));
 
                 break;
             case 13:
@@ -513,11 +558,14 @@ public class Semantico implements Constants {
                 if (!buscaNomeEscoposMaiores(nome)) {
                     throw new SemanticError("ERRO: Variavel: " + nome + " Não Declarada");
                 } else {
-
+                    
+                    if( buscaSeInicializadaEscoposMaiores(nome) ){
+                          warning += "WARNING: Varivel " + nome+ " não inicializada, pode conter lixo de memoria \n";
+                    }
                     tipo_id = tipoStringToNum(buscaTipoTabela(nome));
                     pilhaExp.push(tipo_id);
 
-                    insereUsada(nome, escopo);
+                    insereUsada(nome, BuscaEscopoVar(nome));
 
                 }
                 break;
