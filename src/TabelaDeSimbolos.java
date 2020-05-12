@@ -16,6 +16,7 @@ public class TabelaDeSimbolos {
     private boolean inicializada,parametros,vet,ref,func,usada;
     int escopo = 0 , pos=0, escopoInternoFunc=-1, qtd_param = 0;
     public TabelaDeSimbolos() {
+        
     }
 
    

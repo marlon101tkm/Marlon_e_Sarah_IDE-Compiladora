@@ -1,0 +1,351 @@
+#Options
+GenerateScanner = true
+GenerateParser = true
+Language = Java
+ScannerName = Lexico
+ParserName = Sintatico
+SemanticName = Semantico
+ScannerCaseSensitive = true
+ScannerTable = Compact
+Input = String
+Parser = SLR
+#RegularDefinitions
+//OPERADORES
+SOMA : "+"
+SUBTRACAO : "-"
+MULTIPLICACAO : "*"
+DIVISAO : "/"
+MAIOR : ">"
+MENOR : "<"
+IGUAL : "="
+EXCLAMACAO : "!"
+ECOMERCIAL : "&"
+PIPELINE : "|"
+TIL : "~"
+CIRCUNFLEXO : "^"
+ASTERISCO : "*"
+MODULO:"%"
+
+//DELIMITADORES
+PONTO_VIRGULA:";"
+ASPA_SIMPLES:'
+ASPA_DUPLA:\"
+I_PARENTESES: "("
+F_PARENTESES:")"
+I_CHAVES:"{"
+F_CHAVES:"}"
+I_COLCHETES:"["
+F_COLCHETES:"]"
+DOIS_PONTOS:":"
+PONTO:\.
+VIRGULA:,
+
+//PALAVRAS RESERVADAS
+SE: ((s|S)(e|E))
+ENTAO: ((e|E)(n|N)(t|T)(a|A)(o|O))
+SENAO:((s|S)(e|E)(n|N)(a|A)(o|O)) 
+INTEIRO:((i|I)(n|N)(t|T)(e|E)(i|I)(r|R)(o|O))
+DECIMAL:((d|D)(e|E)(c|C)(i|I)(m|M)(a|A)(l|L))
+LOGICO:((l|L)(o|O)(g|G)(i|I)(c|C)(o|O))
+LETRA:((l|L)(e|E)(t|T)(r|R)(a|A))
+TEXTO:((t|T)(e|E)(x|X)(t|T)(o|O))
+NULO:((n|N)(u|U)(l|L)(o|O))
+VERDADEIRO:((v|V)(e|E)(r|R)(d|D)(a|A)(d|D)(e|E)(i|I)(r|R)(o|O))
+FALSO:((f|F)(a|A)(l|L)(s|S)(o|O))
+VAZIO:((v|V)(a|A)(z|Z)(i|I)(o|O))
+BINARIO:((b|B)(i|I)(n|N)(a|A)(r|R)(i|I)(o|O))
+HEXA:((h|H)(e|E)(x|X)(a|A))
+REAL:((r|R)(e|E)(a|A)(l|L))
+CASO:((c|C)(a|A)(s|S)(o|O))
+ESCAPA:((e|E)(s|S)(c|C)(a|A)(p|P)(a|A))
+ENQUANTO:((e|E)(n|N)(q|Q)(u|U)(a|A)(n|N)(t|T)(o|O))
+PARA:((p|P)(a|A)(r|R)(a|A))
+FAZ:((f|F)(a|A)(z|Z))
+RETORNA:((r|R)(e|E)(t|T)(o|O)(r|R)(n|N)(a|A))
+CONSTANTE:((c|C)(o|O)(n|N)(s|S)(t|T)(a|A)(n|N)(t|T)(e|E))
+DELETAR:((d|D)(e|E)(l|L)(e|E)(t|T)(a|A)(r|R))
+ESCOLHA:((e|E)(s|S)(c|C)(o|O)(l|L)(h|H)(a|A))
+ENTRADA:((E|e)(N|n)(T|t)(R|r)(A|a)(D|d)(A|a))
+ESCREVA:((E|e)(S|s)(C|c)(R|r)(E|e)(V|v)(A|a))
+#Tokens
+//PALAVRAS RESERVADAS
+SE: {SE}
+ENTAO:{ENTAO}
+SENAO:{SENAO} 
+INTEIRO:{INTEIRO}
+DECIMAL:{DECIMAL}
+LOGICO:{LOGICO}
+LETRA:{LETRA}
+TEXTO:{TEXTO}
+NULO:{NULO}
+VERDADEIRO:{VERDADEIRO}
+FALSO:{FALSO}
+VAZIO:{VAZIO}
+BINARIO:{BINARIO}
+HEXA:{HEXA}
+REAL:{REAL}
+CASO:{CASO}
+ESCAPA:{ESCAPA}
+ENQUANTO:{ENQUANTO}
+PARA:{PARA}
+FAZ:{FAZ}
+RETORNA:{RETORNA}
+CONSTANTE:{CONSTANTE}
+DELETAR:{DELETAR}
+ESCOLHA:{ESCOLHA}
+ESCREVA:{ESCREVA}
+ENTRADA:{ENTRADA}
+
+
+//OPERADORES ARITMETICOS
+SOMA : {SOMA}
+SUBTRACAO : {SUBTRACAO}
+MULTIPLICACAO : {MULTIPLICACAO}
+DIVISAO : {DIVISAO}
+INCREMENTA: {SOMA}{SOMA}
+DECREMENTA:{SUBTRACAO}{SUBTRACAO}
+
+//OPERADORES RELACIONAIS
+MAIOR : {MAIOR}
+MENOR : {MENOR}
+ATRIBUICAO : {IGUAL}
+COMPARACAO : {IGUAL}{IGUAL}
+MAIOR_IGUAL : {MAIOR}{IGUAL}
+MENOR_IGUAL : {MENOR}{IGUAL}
+DIFERENTE : {EXCLAMACAO}{IGUAL}
+ATRIBUI_SOMA:{SOMA}{IGUAL}
+ATRIBUI_SUBTRACAO:{SUBTRACAO}{IGUAL}
+
+//OPERADORES LOGICOS
+NEGACAO : {EXCLAMACAO}
+OU : {PIPELINE}{PIPELINE}
+E : {ECOMERCIAL}{ECOMERCIAL}
+
+
+//OPERADORES BIT A BIT
+BITBIT_E : {ECOMERCIAL}
+BITBIT_OU : {PIPELINE}
+BITBIT_OUE : {CIRCUNFLEXO}
+BITBIT_NEGACAO : {TIL}
+BITBIT_DD : {MAIOR}{MAIOR}
+BITBIT_DE : {MENOR}{MENOR}
+
+//TIPOS DE DADOS
+HEXA: 0x[0-9A-F]+
+BINAR: B(0|1)+
+INTEI: [0-9]+
+DECI: [0-9]+{PONTO}[0-9]+
+CARACTER: {ASPA_SIMPLES}([a-z]|[A-Z]|[0-9]){ASPA_SIMPLES}
+PALAVRA: {ASPA_DUPLA}([\s]*|.[^\"]*){ASPA_DUPLA}
+
+//COMENTARIO LINHA
+COMENTARIO_LINHA : {DIVISAO}{DIVISAO}.*
+
+//COMENTARIO PARAGRAFO
+COMENTARIO_PARAGRAFO: {DIVISAO}{ASTERISCO}([\s\t\n\r\*]*.*|.*[\s\t\n\r\*]*|[\s\t\n\r\*]*.*[\s\t\n\r\*]*){ASTERISCO}{DIVISAO}
+
+//DELIMITADORES
+PONTO_VIRGULA:{PONTO_VIRGULA}
+VIRGULA:{VIRGULA}
+I_PARENTESES:{I_PARENTESES}
+F_PARENTESES:{F_PARENTESES}
+I_CHAVES:{I_CHAVES}
+F_CHAVES:{F_CHAVES}
+I_COLCHETES:{I_COLCHETES}
+F_COLCHETES:{F_COLCHETES}
+DOIS_PONTOS:{DOIS_PONTOS}
+PONTO:{PONTO}
+MODULO:{MODULO}
+FLECHA:{IGUAL}{MAIOR}
+
+//NOMES DE VARIAVEIS, FUNÇOES, ETC.
+ID:[A-Z](_|[A-Z0-9])*
+
+: [\s\t\n\r]*
+#NonTerminals
+<lista_comandos>
+<comandos>
+
+<lista_comandos_escopo>
+<comandos_escopo>
+<escopo_vazio>
+
+//declaraçoes
+<tipos_declara>
+<declara_var>
+<declara_func>
+<declara_const>
+<declara_multi_var>
+<declara_multi_var_2>
+<chama_func>
+<chamada_func_simples>
+<chama_param>
+<chama_multi_param>
+<ref_param>
+
+
+<declara_multi_var_Composto>
+
+
+<atribuicao_var>
+
+<atribuicao>
+<declara_param>
+<multi_declara_param>
+<declara_multi_var_simples>
+
+<comentario>
+<tipos_var>
+
+
+<entrada_saida>
+<entrada>
+<saida>
+
+
+
+//desvio condiconal
+<condicional>
+<condicional2>
+<condicional3>
+<parametro>
+
+
+<tipos_func>
+
+<retorna>
+
+<fim_exp>
+
+//lacode repeticao
+<repeticao>
+<faz>
+<para>
+<enquanto>
+<inicio_para>
+
+
+<escopo>
+
+
+//ORDEM DE PRECEDENCIA DE EXPRESSOES
+<exp>
+<exp1>
+<exp2>
+<exp3>
+<exp4>
+<exp5>
+<exp6>
+<exp7>
+<exp8>
+<exp9>
+<exp10>
+<exp11>
+<exp12>
+<exp13>
+
+//OPERADORES
+<op_rel>
+<op_neg>
+<op_bitwise>
+<op_arit_baixa>
+<op_arit_alta>
+<op_sufix>
+<op_atribuicao>
+
+
+
+
+#Grammar
+//Inicio
+<lista_comandos>::= <comandos> <lista_comandos>  | <comandos>;
+
+<comandos>::= <declara_func> | <comentario>;
+
+
+<lista_comandos_escopo> ::= <comandos_escopo> <lista_comandos_escopo>  | <comandos_escopo> ; 
+<comandos_escopo>::= <declara_multi_var> PONTO_VIRGULA |<atribuicao_var> PONTO_VIRGULA  |<condicional> | <retorna> PONTO_VIRGULA |<repeticao> | <comentario> | <entrada_saida> PONTO_VIRGULA | <chamada_func_simples>;
+<chamada_func_simples> ::=  ID #50 <chama_func> PONTO_VIRGULA;
+
+
+<declara_var> ::=  <tipos_var> ID #2 <atribuicao> #12  
+		| <tipos_var> ID #2 
+		| <tipos_var> ID #21 I_COLCHETES <exp2> F_COLCHETES  ;
+		
+
+		
+<atribuicao>::= <op_atribuicao> <exp2> #9;
+
+
+<atribuicao_var>::= ID #3 <atribuicao>#12  | ID #3 I_COLCHETES <exp2> F_COLCHETES <atribuicao>#12 ;
+
+
+
+<declara_param>::= <ref_param> | <declara_var>#31 VIRGULA#32 <multi_declara_param> | <declara_var>#31;
+<multi_declara_param>::=  <declara_param>;
+<ref_param> ::= <tipos_var> BITBIT_E ID #40 | <tipos_var> BITBIT_E ID #40 VIRGULA #32 <declara_param>;
+
+
+<declara_multi_var> ::=  <declara_var> VIRGULA <declara_multi_var_simples> |  <declara_var>;
+<declara_multi_var_simples>::= ID #2  <atribuicao> #12 <declara_multi_var_Composto>|  ID #2 <declara_multi_var_Composto> | ID #21  I_COLCHETES <exp2> F_COLCHETES  <declara_multi_var_Composto>;
+<declara_multi_var_Composto>::= VIRGULA <declara_multi_var_simples> | î;
+
+
+<declara_func>::=  <tipos_var> ID#20 I_PARENTESES#10 <declara_param> F_PARENTESES#33 | <tipos_var> ID#20 I_PARENTESES#10 <declara_param> F_PARENTESES#33 <escopo> | <tipos_var> ID#20 I_PARENTESES#10  F_PARENTESES <escopo>;
+
+<chama_func>::=  I_PARENTESES <chama_param> #37 F_PARENTESES #38 | I_PARENTESES #37 F_PARENTESES #38;
+<chama_param>::= <exp2>#35 <chama_multi_param> ; 
+<chama_multi_param>::= VIRGULA#32  <chama_param>| î;
+
+
+<comentario>::= COMENTARIO_LINHA | COMENTARIO_PARAGRAFO ;
+
+
+//DESVIO CONDICIONAL
+<condicional>::=  SE I_PARENTESES#10  <exp2> #39 F_PARENTESES <escopo> <condicional2> ;
+<condicional2>::=  SENAO#10 <escopo> | î ;
+
+<fim_exp> ::= î | PONTO_VIRGULA ; 
+
+<entrada_saida>::= <entrada> | <saida> ;
+<entrada>::= ENTRADA I_PARENTESES ID#41  F_PARENTESES ;
+<saida>::= ESCREVA I_PARENTESES <exp2>  F_PARENTESES ;
+
+<tipos_var> ::= HEXA #1 | BINARIO #1 | DECIMAL #1 | INTEIRO #1 | LETRA #1 | TEXTO #1 | LOGICO #1 | VAZIO #1 ;
+
+<retorna>::= RETORNA <exp2>#42 ;
+
+//lacos de repeticao
+<repeticao>::= <faz> | <para> | <enquanto> ;
+<faz>::= FAZ#10 <escopo> ENQUANTO I_PARENTESES  <exp2>#39 F_PARENTESES  PONTO_VIRGULA ;
+<enquanto>::= ENQUANTO I_PARENTESES#10  <exp2>#39 F_PARENTESES  <escopo>  ; 
+<para>::= PARA I_PARENTESES #10 <inicio_para> PONTO_VIRGULA <exp2>#39  PONTO_VIRGULA <exp2> F_PARENTESES <escopo> ;
+//para permitir que a primeira parte do "para" permita uma expressao  , ou uma definicao de variaveis 
+<inicio_para>::= ID#3 <atribuicao> #12 | <tipos_var> ID #2 <atribuicao> #12 ;
+
+<escopo>::= I_CHAVES <lista_comandos_escopo> F_CHAVES#11 | <escopo_vazio>;
+<escopo_vazio> ::= I_CHAVES #51 F_CHAVES#11;
+
+//definicao de expresoes
+
+<exp2>  ::= <exp2>        OU #14       <exp3> #13  | <exp3>  ;
+<exp3> ::=  <exp3>        E  #14       <exp4>  #22  | <exp4> ;
+<exp4> ::=  <exp4>    BITBIT_OU #14     <exp5> #23  | <exp5>;
+<exp5> ::=  <exp5>    BITBIT_OUE #14    <exp6> #24 | <exp6>;
+<exp6> ::=  <exp6>     BITBIT_E #14     <exp7> #25 | <exp7>;
+<exp7> ::=  <exp7>     <op_rel>        <exp8>  #26 | <exp8>;
+<exp8> ::=  <exp8>   <op_bitwise>       <exp9> #27 | <exp9>;
+<exp9> ::=  <exp9>   <op_arit_baixa>   <exp10> #28 | <exp10>;
+<exp10> ::= <exp10>   <op_arit_alta>   <exp11> #29 | <exp11> ;
+<exp11> ::=            <op_neg>        <exp12> #46  | <exp12>  ;
+<exp12> ::= <exp13>    <op_sufix>  #47     | <exp13>;
+<exp13> ::= INTEI#4  | DECI #5 | ID #30| VERDADEIRO #6 | FALSO #6 | CARACTER #7 | PALAVRA #8  |ID#36 <chama_func> | I_PARENTESES  <exp2> #9   F_PARENTESES #34 ;
+
+//OPERADORES DE 
+<op_rel> ::= MAIOR  #15  | MENOR #15| MAIOR_IGUAL #15 | MENOR_IGUAL#15 | COMPARACAO#15 | DIFERENTE #15 ; 
+<op_neg> ::= SUBTRACAO #44 | BITBIT_NEGACAO#43 | NEGACAO#43 ;
+<op_bitwise> ::= BITBIT_DE #14 | BITBIT_DD#14 ;
+<op_arit_baixa> ::= SOMA #16 | SUBTRACAO #17 ;
+<op_arit_alta> ::= MULTIPLICACAO #18 | DIVISAO #19 | MODULO #19 ;
+<op_sufix>::=   INCREMENTA #45 | DECREMENTA #45 ;
+<op_atribuicao> ::= ATRIBUICAO | ATRIBUI_SOMA | ATRIBUI_SUBTRACAO ;

@@ -1,0 +1,196 @@
+### TESTE DE FUNCAO VAZIA | OK
+
+vazio FUNCAO_VAZIA(){
+
+}
+
+letra FUNCAO_VAZIA(){
+
+}
+
+--------------------------------
+### Verificar se um identificador está declarado no escopo em que é usado no programa | OK
+
+Teste 1: OK
+	vazio F1(){
+		inteiro P1;
+
+	}
+	vazio F2(){
+		P1 = 2;
+
+	}
+
+Teste 2: OK
+	vazio F1(){
+		P1 = 3;
+
+	}
+	vazio F2(){
+		inteiro P1 = 2;
+
+	}
+
+--------------------------------
+### Garantir a unicidade dos identificadores em um escopo;
+
+
+Teste 1: OK
+	vazio F1(){
+		inteiro P1;
+		decimal P1;
+		letra P1;
+		texto P1;
+	}
+
+Teste 2: OK
+	vazio F1(){
+		inteiro P1;
+		decimal P2;
+		letra P3;
+		texto P4;
+	}
+	vazio F2(){
+		inteiro P1;
+		decimal P2;
+		letra P3;
+		texto P4;
+	}
+
+--------------------------------
+###  Avisar se os identificadores são declarados e não usados; 
+
+Teste 1: OK 
+	vazio F1(){
+		inteiro P1;
+		decimal P2;
+		letra P3;
+		texto P4;
+	}
+	vazio F2(){
+		inteiro P1;
+		decimal P2;
+		letra P3;
+		texto P4;
+	}
+
+
+--------------------------------
+### Avisar se os identificadores estão sendo usados sem estar
+inicializados (uso de lixo de memória)
+
+Teste 1: OK
+	vazio F1(){
+		inteiro P1;
+		decimal P2;
+		letra P3;
+		texto P4;
+	}
+	vazio F2(){
+		inteiro P1;
+		decimal P2;
+		letra P3;
+		texto P4;
+	}
+
+--------------------------------
+### Acrescentar na interface da IDE um componente para
+visualização da tabela
+
+OK
+
+--------------------------------
+### Verificar a compatibilidade de tipos nas operações e
+atribuições.
+
+Teste 1: OK
+	vazio FUNCAO(inteiro A, letra B){
+		A = B;
+	}
+
+Teste 2: OK
+	vazio FUNCAO(inteiro A, letra B){
+		A = "C";
+		B = 10;
+	}
+	
+Teste 3: OK
+	vazio F1(){
+		inteiro A;
+		decimal B;
+		letra C;
+		texto D;
+		logico E;
+		
+		//A = 'c';
+		//A = "Palavra";
+		//A = 2.9678;
+		//A = verdadeiro;
+		//A = falso;
+		//A = 1;
+		
+		//B = 'c';
+		//B = "Palavra Teste";
+		//B = 2.9678;
+		//B = verdadeiro;
+		//B = falso;
+		// B = 1;
+		
+		//C = 'c';
+		//C = "Palavra Teste";
+		//C = 2.9678;
+		//C = verdadeiro;
+		//C = falso;
+		//C = 1;
+		
+		//D = 'c';
+		//D = "Palavra teste"; 
+		//D = 2.9678;
+		//D = verdadeiro;
+		//D = falso;
+		//D = 1;
+		
+		//E = 'c';
+		//E = "Palavra Teste";
+		//E = 2.9678;
+		//E = verdadeiro;
+		//E = falso;
+		//E = 1;
+		
+	}
+
+
+
+vazio F1(){
+		inteiro A;
+		decimal B;
+		letra C;
+		texto D;
+		logico E;
+		
+		A=1;
+		B=1.2;
+		C='a';
+		D="b";
+		E=verdadeiro;
+		
+	}
+
+inteiro NUM(){
+retorna "a"; 
+
+}
+
+vazio FUNC(){
+inteiro A,B[2];
+inteiro B[2]
+
+}
+
+inteiro NUM(){
+inteiro A;
+se(A<1){
+ inteiro A;
+}
+
+}

@@ -28,6 +28,7 @@ public class Tela extends javax.swing.JFrame {
      * Creates new form Tela
      */
     
+    String codData="",codExe="";
     
     public void carregaTabSimb(Semantico sem){
         
@@ -78,6 +79,7 @@ public class Tela extends javax.swing.JFrame {
         btnMenuAbrir = new javax.swing.JMenu();
         btnMenuSalva = new javax.swing.JMenuItem();
         btnMenuAbre = new javax.swing.JMenuItem();
+        codGerado = new javax.swing.JMenuItem();
         jMenu2 = new javax.swing.JMenu();
 
         jButton1.setText("jButton1");
@@ -125,6 +127,14 @@ public class Tela extends javax.swing.JFrame {
             }
         });
         btnMenuAbrir.add(btnMenuAbre);
+
+        codGerado.setText("Gerar Codigo");
+        codGerado.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                codGeradoActionPerformed(evt);
+            }
+        });
+        btnMenuAbrir.add(codGerado);
 
         jMenuBar1.add(btnMenuAbrir);
 
@@ -177,7 +187,8 @@ public class Tela extends javax.swing.JFrame {
             sint.parse(lex, sem);
             carregaTabSimb(sem);
             painelConsole.setText(sem.warning+"Sucesso");
-            
+           codData = sem.carregaVariavel();
+           codExe = sem.src;
 
         } catch (LexicalError ex) {
             Logger.getLogger(Tela.class.getName()).log(Level.SEVERE, null, ex);
@@ -231,6 +242,17 @@ public class Tela extends javax.swing.JFrame {
 
     }//GEN-LAST:event_btnMenuAbreActionPerformed
 
+    private void codGeradoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_codGeradoActionPerformed
+        String codFinal;
+        CodigoGerado gerado  = new CodigoGerado();
+        codFinal = codData+codExe+"HLT"+" "+"0"; 
+        gerado.setCaixaTexto(codFinal);
+        gerado.setVisible(true);
+        
+        
+        
+    }//GEN-LAST:event_codGeradoActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -271,6 +293,7 @@ public class Tela extends javax.swing.JFrame {
     private javax.swing.JMenuItem btnMenuAbre;
     private javax.swing.JMenu btnMenuAbrir;
     private javax.swing.JMenuItem btnMenuSalva;
+    private javax.swing.JMenuItem codGerado;
     private javax.swing.JTextArea entradaCompila;
     private javax.swing.JButton jButton1;
     private javax.swing.JMenu jMenu2;
