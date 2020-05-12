@@ -7,7 +7,7 @@ ParserName = Sintatico
 SemanticName = Semantico
 ScannerCaseSensitive = true
 ScannerTable = Compact
-Input = String
+Input = Stream
 Parser = SLR
 #RegularDefinitions
 //OPERADORES
@@ -309,7 +309,7 @@ ID:[A-Z](_|[A-Z0-9])*
 
 <entrada_saida>::= <entrada> | <saida> ;
 <entrada>::= ENTRADA I_PARENTESES ID#41  F_PARENTESES ;
-<saida>::= ESCREVA I_PARENTESES <exp2>  F_PARENTESES ;
+<saida>::= ESCREVA I_PARENTESES <exp2>#48 F_PARENTESES ;
 
 <tipos_var> ::= HEXA #1 | BINARIO #1 | DECIMAL #1 | INTEIRO #1 | LETRA #1 | TEXTO #1 | LOGICO #1 | VAZIO #1 ;
 
