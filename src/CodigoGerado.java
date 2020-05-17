@@ -41,8 +41,6 @@ public class CodigoGerado extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         caixaTexto = new javax.swing.JTextArea();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-
         caixaTexto.setColumns(20);
         caixaTexto.setRows(5);
         jScrollPane1.setViewportView(caixaTexto);

@@ -9,22 +9,99 @@ public class Semantico implements Constants {
     Stack<Integer> pilhaEscopo = new Stack(), pilhaEscAux = new Stack();
     Stack<Integer> pilhaExp = new Stack();
     List<TabelaDeSimbolos> tabSimb = new ArrayList<>();
-    String nome = "", tipo = "", warning = "", nome_func = "", src = "", operador = "";
+    String nome = "", nomeAtrib = "", nomeVet = "", tipo = "", warning = "", nome_func = "", src = ".text\n", operador = "";
     boolean inicializada = false, parametros = false, vet = false, ref = false, func = false, seFunc = false, flagOP = false;
     SemanticTable sTb = new SemanticTable();
     int escopo = 0, tipo_id = -1, tipo_exp = -1, tipo1 = -1, tipo2 = -1, operacao = -1, resultAtrib = -1, ordemParam = -1, posicao = 1,
-            escopo_temp = -1, qtd_param = 0, qtd_chama_param = 0, tipo_param = -1, escopo_inter_func = 0;
+            indexExp = 0, indexExpVet = 0, escopo_temp = -1, qtd_param = 0, qtd_chama_param = 0, tipo_param = -1, escopo_inter_func = 0;
 
     public List<TabelaDeSimbolos> getTabSimb() {
         return tabSimb;
     }
 
     public void gera_cod(String le, String ld) {
-        src += "\t" + le + " " + ld + "\n";
+        src += "   " + le + "  " + ld + "\n";
+    }
+
+    public void gera_cod_nome_func(String nome) {
+        src += "_" + nome + " : \n";
+    }
+
+    public void gera_codVar(Token token) {
+        if (!flagOP) {
+            gera_cod("LD", token.getLexeme());
+        } else {
+            if (operador.equals("+")) {
+                gera_cod("ADD", token.getLexeme());
+            }
+
+            if (operador.equals("-")) {
+                gera_cod("SUB", token.getLexeme());
+            }
+            flagOP = false;
+
+        }
+    }
+
+    public void gera_codInteiro(Token token) {
+
+        if (!vet) {
+
+            if (!flagOP) {
+                gera_cod("LDI", token.getLexeme());
+            } else {
+                if (operador.equals("+")) {
+                    gera_cod("ADDI", token.getLexeme());
+                }
+
+                if (operador.equals("-")) {
+                    gera_cod("SUBI", token.getLexeme());
+                }
+                flagOP = false;
+
+            }
+        }
     }
 
     public String getSrc() {
         return src;
+    }
+
+    public String carregaVariavel() {
+        String pontoData = ".data\n";
+        for (TabelaDeSimbolos it : tabSimb) {
+
+            if (!it.isFunc() && !it.isVet() && it.getTipo().equals("inteiro") && !it.isParametros()) {
+                pontoData += "" + it.getNome() + " : " + "0\n";
+
+            }
+
+            if (!it.isFunc() && it.isVet() && it.getTipo().equals("inteiro") && !it.isParametros()) {
+                pontoData += "" + it.getNome() + " : ";
+                for (int i = 0; i < it.getQtdEspacoVet(); i++) {
+                    if (i == it.getQtdEspacoVet() - 1) {
+                        pontoData += "0\n";
+                    } else {
+                        pontoData += "0,";
+                    }
+
+                }
+            }
+        }
+
+        return pontoData;
+
+    }
+
+    public void insereQtdVet(String nome, int qtdvet) {
+        for (TabelaDeSimbolos it : tabSimb) {
+
+            if (!it.isFunc() && it.isVet() && it.getNome().equals(nome) && !it.isParametros()) {
+                it.setQtdEspacoVet(qtdvet);
+
+            }
+        }
+
     }
 
     public boolean buscaNomeTabela(String id, int escop) {
@@ -142,6 +219,17 @@ public class Semantico implements Constants {
         for (TabelaDeSimbolos it : tabSimb) {
 
             if (!it.isFunc() && it.getNome().equals(id) && it.getEscopo() == escopo && !it.isInicializada()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public boolean buscaSeVet(String id, int escopo) {
+        for (TabelaDeSimbolos it : tabSimb) {
+
+            if (it.isVet() && !it.isFunc() && it.getNome().equals(id) && it.getEscopo() == escopo && !it.isInicializada()) {
                 return true;
             }
         }
@@ -312,6 +400,21 @@ public class Semantico implements Constants {
 
     }
 
+    public void trataExp() throws SemanticError {
+
+        tipo2 = pilhaExp.pop();
+        operacao = pilhaExp.pop();
+        tipo1 = pilhaExp.pop();
+        tipo_exp = sTb.resultType(tipo1, tipo2, operacao);
+        if (tipo_exp == sTb.ERR) {
+            throw new SemanticError("ERRO: Tipos incompativeis");
+        } else {
+
+            pilhaExp.push(tipo_exp);
+        }
+
+    }
+
     public void executeAction(int action, Token token) throws SemanticError {
 
         TabelaDeSimbolos elemento = new TabelaDeSimbolos();
@@ -345,31 +448,19 @@ public class Semantico implements Constants {
                 if (!buscaNomeEscoposMaiores(nome)) {
                     throw new SemanticError("ERRO: Variavel: " + nome + " Não Declarada");
                 } else {
+                    
                     tipo_id = tipoStringToNum(buscaTipoTabela(nome));
                     pilhaExp.push(tipo_id);
+                    nomeAtrib = nome;
                 }
                 break;
             case 4:
                 pilhaExp.push(sTb.INT);
-
-                if (!flagOP) {
-                    gera_cod("LDI", token.getLexeme());
-                } else {
-                    if (operador == "+") {
-                        gera_cod("ADDI", token.getLexeme());
-                    }
-
-                    if (operador == "-") {
-                        gera_cod("SUBI", token.getLexeme());
-                    }
-                    flagOP = false;
-
-                }
+                gera_codInteiro(token);
+                vet = false;
                 break;
             case 5:
-
                 pilhaExp.push(sTb.FLO);
-
                 break;
             case 6:
                 pilhaExp.push(sTb.BOO);
@@ -383,6 +474,7 @@ public class Semantico implements Constants {
                 break;
             case 9:
                 tipo_exp = pilhaExp.pop();
+                indexExp = 0;
                 break;
             case 10:
                 escopo_temp = pilhaEscopo.peek();
@@ -405,20 +497,22 @@ public class Semantico implements Constants {
                 if (resultAtrib == sTb.WAR) {
                     warning += "WARNING: Posivel perda de precisao  na atribuição de tipo " + tipoNumToString(tipo_exp) + " para tipo " + tipoNumToString(tipo_id) + "\n";
                 }
-                gera_cod("STO", nome);
-                insereInicializar(nome, BuscaEscopoVar(nome));
+                if (buscaSeVet(nomeAtrib, escopo)) {
+                    
+                    gera_cod("STO", "1002");
+                    gera_cod("LD", "1000");
+                    gera_cod("STO", "$indr");
+                    gera_cod("LD", "1002");
+                    gera_cod("STOV", nomeAtrib);
+                    
+                } else {
 
+                    insereInicializar(nome, BuscaEscopoVar(nome));
+                    gera_cod("STO", nomeAtrib);
+                }
                 break;
             case 13:
-                tipo2 = pilhaExp.pop();
-                operacao = pilhaExp.pop();
-                tipo1 = pilhaExp.pop();
-                tipo_exp = sTb.resultType(tipo1, tipo2, operacao);
-                if (tipo_exp == sTb.ERR) {
-                    pilhaExp.push(tipo_exp);
-                } else {
-                    throw new SemanticError("ERRO: Tipos incompativeis");
-                }
+                trataExp();
                 break;
 
             case 14:
@@ -429,13 +523,16 @@ public class Semantico implements Constants {
                 break;
             case 16:
                 pilhaExp.push(sTb.SUM);
+
                 flagOP = true;
                 operador = token.getLexeme();
+                indexExp++;
                 break;
             case 17:
                 pilhaExp.push(sTb.SUB);
                 flagOP = true;
                 operador = token.getLexeme();
+                indexExp++;
                 break;
             case 18:
                 pilhaExp.push(sTb.MUL);
@@ -459,6 +556,7 @@ public class Semantico implements Constants {
 
                     //System.out.println(elemento.getTipo());
                     tabSimb.add(elemento);
+                    gera_cod_nome_func(nome_func);
                 }
                 break;
             case 21:
@@ -476,131 +574,59 @@ public class Semantico implements Constants {
 
                     //System.out.println(elemento.getTipo());
                     tabSimb.add(elemento);
+                    vet = true;
                 }
                 break;
             case 22:
-                tipo2 = pilhaExp.pop();
-                operacao = pilhaExp.pop();
-                tipo1 = pilhaExp.pop();
-                tipo_exp = sTb.resultType(tipo1, tipo2, operacao);
-                if (tipo_exp == sTb.ERR) {
-                    throw new SemanticError("ERRO: Tipos incompativeis");
-
-                } else {
-                    pilhaExp.push(tipo_exp);
-
-                }
+                trataExp();
                 break;
             case 23:
-                tipo2 = pilhaExp.pop();
-                operacao = pilhaExp.pop();
-                tipo1 = pilhaExp.pop();
-                tipo_exp = sTb.resultType(tipo1, tipo2, operacao);
-                if (tipo_exp == sTb.ERR) {
-                    throw new SemanticError("ERRO: Tipos incompativeis");
-
-                } else {
-                    pilhaExp.push(tipo_exp);
-                }
+                trataExp();
                 break;
             case 24:
-                tipo2 = pilhaExp.pop();
-                operacao = pilhaExp.pop();
-                tipo1 = pilhaExp.pop();
-                tipo_exp = sTb.resultType(tipo1, tipo2, operacao);
-                if (tipo_exp == sTb.ERR) {
-                    throw new SemanticError("ERRO: Tipos incompativeis");
-
-                } else {
-                    pilhaExp.push(tipo_exp);
-                }
+                trataExp();
                 break;
             case 25:
-                tipo2 = pilhaExp.pop();
-                operacao = pilhaExp.pop();
-                tipo1 = pilhaExp.pop();
-                tipo_exp = sTb.resultType(tipo1, tipo2, operacao);
-                if (tipo_exp == sTb.ERR) {
-                    throw new SemanticError("ERRO: Tipos incompativeis");
-                } else {
-                    pilhaExp.push(tipo_exp);
-
-                }
+                trataExp();
                 break;
             case 26:
-                tipo2 = pilhaExp.pop();
-                operacao = pilhaExp.pop();
-                tipo1 = pilhaExp.pop();
-                tipo_exp = sTb.resultType(tipo1, tipo2, operacao);
-                if (tipo_exp == sTb.ERR) {
-                    throw new SemanticError("ERRO: Tipos incompativeis");
-
-                } else {
-                    pilhaExp.push(tipo_exp);
-                }
+                trataExp();
                 break;
             case 27:
-                tipo2 = pilhaExp.pop();
-                operacao = pilhaExp.pop();
-                tipo1 = pilhaExp.pop();
-                tipo_exp = sTb.resultType(tipo1, tipo2, operacao);
-                if (tipo_exp == sTb.ERR) {
-                    throw new SemanticError("ERRO: Tipos incompativeis");
-
-                } else {
-                    pilhaExp.push(tipo_exp);
-                }
+                trataExp();
                 break;
             case 28:
-                tipo2 = pilhaExp.pop();
-                operacao = pilhaExp.pop();
-                tipo1 = pilhaExp.pop();
-                tipo_exp = sTb.resultType(tipo1, tipo2, operacao);
-                if (tipo_exp == sTb.ERR) {
-                    throw new SemanticError("ERRO: Tipos incompativeis");
-
-                } else {
-                    pilhaExp.push(tipo_exp);
-                }
+                trataExp();
                 break;
             case 29:
-                tipo2 = pilhaExp.pop();
-                operacao = pilhaExp.pop();
-                tipo1 = pilhaExp.pop();
-                tipo_exp = sTb.resultType(tipo1, tipo2, operacao);
-                if (tipo_exp == sTb.ERR) {
-                    throw new SemanticError("ERRO: Tipos incompativeis");
-
-                } else {
-                    pilhaExp.push(tipo_exp);
-                }
+                trataExp();
                 break;
             case 30:
                 nome = token.getLexeme();
                 if (!buscaNomeEscoposMaiores(nome)) {
                     throw new SemanticError("ERRO: Variavel: " + nome + " Não Declarada");
                 } else {
-
                     if (buscaSeInicializadaEscoposMaiores(nome)) {
                         warning += "WARNING: Varivel " + nome + " não inicializada, pode conter lixo de memoria \n";
                     }
-                    tipo_id = tipoStringToNum(buscaTipoTabela(nome));
-                    pilhaExp.push(tipo_id);
 
-                    insereUsada(nome, BuscaEscopoVar(nome));
-                    
-                    if (!flagOP) {
-                        gera_cod("LD", token.getLexeme());
+                    if (buscaSeVet(nome, escopo)) {
+                        nomeVet = nome;
+
+                        if (indexExp > 0) {
+                            gera_cod("STO", "1002");
+
+                        }
+                        indexExpVet = indexExp;
+
                     } else {
-                        if (operador == "+") {
-                            gera_cod("ADD", token.getLexeme());
-                        }
 
-                        if (operador == "-") {
-                            gera_cod("SUB", token.getLexeme());
-                        }
-                        flagOP = false;
+                        tipo_id = tipoStringToNum(buscaTipoTabela(nome));
+                        pilhaExp.push(tipo_id);
 
+                        insereUsada(nome, BuscaEscopoVar(nome));
+
+                        gera_codVar(token);
                     }
 
                 }
@@ -696,7 +722,7 @@ public class Semantico implements Constants {
                 }
                 gera_cod("LD", "$in_port");
                 gera_cod("STO", nome);
-                
+
                 break;
             case 42:
                 tipo_exp = pilhaExp.pop();
@@ -724,28 +750,36 @@ public class Semantico implements Constants {
                 break;
 
             case 46:
-                tipo2 = pilhaExp.pop();
-                operacao = pilhaExp.pop();
-                tipo1 = pilhaExp.pop();
-                tipo_exp = sTb.resultType(tipo1, tipo2, operacao);
-                if (tipo_exp == sTb.ERR) {
-                    throw new SemanticError("ERRO: Tipos incompativeis");
-
-                } else {
-                    pilhaExp.push(tipo_exp);
-                }
+                trataExp();
                 break;
             case 47:
-                tipo2 = pilhaExp.pop();
-                operacao = pilhaExp.pop();
-                tipo1 = pilhaExp.pop();
-                tipo_exp = sTb.resultType(tipo1, tipo2, operacao);
-                if (tipo_exp == sTb.ERR) {
-                    throw new SemanticError("ERRO: Tipos incompativeis");
+                trataExp();
+                break;
+
+            case 48:
+                gera_cod("STO", "$out_port");
+                break;
+            case 49:
+                insereQtdVet(nome, Integer.parseInt(token.getLexeme()));
+                break;
+            case 50:
+                if (indexExpVet == 0) {
+                    gera_cod("STO", "$indr");
+                    gera_cod("LDV", nomeVet);
 
                 } else {
-                    pilhaExp.push(tipo_exp);
+                    gera_cod("STO", "$indr");
+                    gera_cod("LDV", nomeVet);
+                    gera_cod("STO", "1003");
+                    gera_cod("LD", "1002");
+                    flagOP = true;
+                    gera_codVar(new Token(0, "1003", 0));
+                    flagOP = false;
                 }
+                indexExpVet = 0;
+                break;
+            case 51:
+                gera_cod("STO","1000");
                 break;
         }
 

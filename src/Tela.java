@@ -26,7 +26,12 @@ public class Tela extends javax.swing.JFrame {
 
     /**
      * Creates new form Tela
+     * 
+     * 
+     * 
      */
+    
+     CodigoGerado gerado  = new CodigoGerado();
     
     String codData="",codExe="";
     
@@ -55,6 +60,7 @@ public class Tela extends javax.swing.JFrame {
     public Tela() {
         initComponents();
         painelConsole.setEditable(false);
+        gerado.setVisible(false);
 
     }
 
@@ -244,7 +250,6 @@ public class Tela extends javax.swing.JFrame {
 
     private void codGeradoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_codGeradoActionPerformed
         String codFinal;
-        CodigoGerado gerado  = new CodigoGerado();
         codFinal = codData+codExe+"HLT"+" "+"0"; 
         gerado.setCaixaTexto(codFinal);
         gerado.setVisible(true);

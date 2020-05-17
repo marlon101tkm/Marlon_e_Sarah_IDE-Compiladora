@@ -7,7 +7,7 @@ ParserName = Sintatico
 SemanticName = Semantico
 ScannerCaseSensitive = true
 ScannerTable = Compact
-Input = Stream
+Input = String
 Parser = SLR
 #RegularDefinitions
 //OPERADORES
@@ -194,6 +194,8 @@ ID:[A-Z](_|[A-Z0-9])*
 <multi_declara_param>
 <declara_multi_var_simples>
 
+<usaVet>
+
 <comentario>
 <tipos_var>
 
@@ -270,14 +272,14 @@ ID:[A-Z](_|[A-Z0-9])*
 
 <declara_var> ::=  <tipos_var> ID #2 <atribuicao> #12  
 		| <tipos_var> ID #2 
-		| <tipos_var> ID #21 I_COLCHETES <exp2> F_COLCHETES  ;
+		| <tipos_var> ID #21 I_COLCHETES <exp2>#49 F_COLCHETES  ;
 		
 
 		
 <atribuicao>::= <op_atribuicao> <exp2> #9;
 
 
-<atribuicao_var>::= ID #3 <atribuicao>#12  | ID #3 I_COLCHETES <exp2> F_COLCHETES <atribuicao>#12 ;
+<atribuicao_var>::= ID #3 <atribuicao>#12  | ID #3 I_COLCHETES <exp2>#9 F_COLCHETES #51 <atribuicao>#12 ;
 
 
 
@@ -287,7 +289,7 @@ ID:[A-Z](_|[A-Z0-9])*
 
 
 <declara_multi_var> ::=  <declara_var> VIRGULA <declara_multi_var_simples> |  <declara_var>;
-<declara_multi_var_simples>::= ID #2  <atribuicao> #12 <declara_multi_var_Composto>|  ID #2 <declara_multi_var_Composto> | ID #21  I_COLCHETES <exp2> F_COLCHETES  <declara_multi_var_Composto>;
+<declara_multi_var_simples>::= ID #2  <atribuicao> #12 <declara_multi_var_Composto>|  ID #2 <declara_multi_var_Composto> | ID #21  I_COLCHETES <exp2>#49 F_COLCHETES  <declara_multi_var_Composto>;
 <declara_multi_var_Composto>::= VIRGULA <declara_multi_var_simples> | î;
 
 
@@ -300,6 +302,7 @@ ID:[A-Z](_|[A-Z0-9])*
 
 <comentario>::= COMENTARIO_LINHA | COMENTARIO_PARAGRAFO ;
 
+<usaVet>::= I_COLCHETES <exp2>#9  F_COLCHETES  ;
 
 //DESVIO CONDICIONAL
 <condicional>::=  SE I_PARENTESES#10  <exp2> #39 F_PARENTESES <escopo> <condicional2> ;
@@ -339,7 +342,7 @@ ID:[A-Z](_|[A-Z0-9])*
 <exp10> ::= <exp10>   <op_arit_alta>   <exp11> #29 | <exp11> ;
 <exp11> ::=            <op_neg>        <exp12> #46  | <exp12>  ;
 <exp12> ::= <exp13>    <op_sufix>  #47     | <exp13>;
-<exp13> ::= INTEI#4  | DECI #5 | ID #30| VERDADEIRO #6 | FALSO #6 | CARACTER #7 | PALAVRA #8  |ID#36 <chama_func> | I_PARENTESES  <exp2> #9   F_PARENTESES #34 ;
+<exp13> ::= INTEI#4  | DECI #5 | ID #30| VERDADEIRO #6 | FALSO #6 | CARACTER #7 | PALAVRA #8  |ID#36 <chama_func> | I_PARENTESES  <exp2> #9   F_PARENTESES #34 |ID#30 <usaVet>#50  ;
 
 //OPERADORES DE 
 <op_rel> ::= MAIOR  #15  | MENOR #15| MAIOR_IGUAL #15 | MENOR_IGUAL#15 | COMPARACAO#15 | DIFERENTE #15 ; 
