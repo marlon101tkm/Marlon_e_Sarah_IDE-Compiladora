@@ -60,7 +60,7 @@ public class Semantico implements Constants {
                 flagOP = false;
 
             }
-        }
+       }
     }
 
     public String getSrc() {
@@ -455,8 +455,14 @@ public class Semantico implements Constants {
                 }
                 break;
             case 4:
-                pilhaExp.push(sTb.INT);
+                pilhaExp.push(sTb.INT);   
+                if(indexExpVet>0){
+                    flagOP=false; 
+                }
                 gera_codInteiro(token);
+                if(indexExpVet>0){
+                    flagOP=true; 
+                }
                 vet = false;
                 break;
             case 5:
@@ -617,7 +623,12 @@ public class Semantico implements Constants {
                             gera_cod("STO", "1002");
 
                         }
+                        tipo_id = tipoStringToNum(buscaTipoTabela(nome));
+                        pilhaExp.push(tipo_id);
+
+                        insereUsada(nome, BuscaEscopoVar(nome));
                         indexExpVet = indexExp;
+                     
 
                     } else {
 
