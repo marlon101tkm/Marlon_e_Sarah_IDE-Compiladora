@@ -7,7 +7,7 @@ ParserName = Sintatico
 SemanticName = Semantico
 ScannerCaseSensitive = true
 ScannerTable = Compact
-Input = String
+Input = Stream
 Parser = SLR
 #RegularDefinitions
 //OPERADORES
@@ -302,7 +302,7 @@ ID:[A-Z](_|[A-Z0-9])*
 
 <comentario>::= COMENTARIO_LINHA | COMENTARIO_PARAGRAFO ;
 
-<usaVet>::= I_COLCHETES <exp2>#9  F_COLCHETES  ;
+<usaVet>::= I_COLCHETES#52 <exp2>#9  F_COLCHETES#53  ;
 
 //DESVIO CONDICIONAL
 <condicional>::=  SE I_PARENTESES#10  <exp2> #39 F_PARENTESES <escopo> <condicional2> ;
@@ -322,7 +322,7 @@ ID:[A-Z](_|[A-Z0-9])*
 <repeticao>::= <faz> | <para> | <enquanto> ;
 <faz>::= FAZ#10 <escopo> ENQUANTO I_PARENTESES  <exp2>#39 F_PARENTESES  PONTO_VIRGULA ;
 <enquanto>::= ENQUANTO I_PARENTESES#10  <exp2>#39 F_PARENTESES  <escopo>  ; 
-<para>::= PARA I_PARENTESES #10 <inicio_para> PONTO_VIRGULA <exp2>#39  PONTO_VIRGULA <exp2> F_PARENTESES <escopo> ;
+<para>::= PARA I_PARENTESES #10 <inicio_para> PONTO_VIRGULA <exp2>#39  PONTO_VIRGULA ID <op_sufix> F_PARENTESES <escopo> ;
 //para permitir que a primeira parte do "para" permita uma expressao  , ou uma definicao de variaveis 
 <inicio_para>::= ID#3 <atribuicao> #12 | <tipos_var> ID #2 <atribuicao> #12 ;
 

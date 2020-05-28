@@ -8,9 +8,10 @@ public class Semantico implements Constants {
 
     Stack<Integer> pilhaEscopo = new Stack(), pilhaEscAux = new Stack();
     Stack<Integer> pilhaExp = new Stack();
+    Stack<String> pilhaRotulos = new Stack();
     List<TabelaDeSimbolos> tabSimb = new ArrayList<>();
-    String nome = "", nomeAtrib = "", nomeVet = "", tipo = "", warning = "", nome_func = "", src = ".text\n", operador = "";
-    boolean inicializada = false, parametros = false, vet = false, ref = false, func = false, seFunc = false, flagOP = false;
+    String nome = "", nomeAtrib = "", nomeVet = "", tipo = "", warning = "", nome_func = "", src = ".text\n", operador = "", opAnt = "";
+    boolean inicializada = false, parametros = false, vet = false, ref = false, func = false, seFunc = false, flagOP = false, isNot=false;
     SemanticTable sTb = new SemanticTable();
     int escopo = 0, tipo_id = -1, tipo_exp = -1, tipo1 = -1, tipo2 = -1, operacao = -1, resultAtrib = -1, ordemParam = -1, posicao = 1,
             indexExp = 0, indexExpVet = 0, escopo_temp = -1, qtd_param = 0, qtd_chama_param = 0, tipo_param = -1, escopo_inter_func = 0;
@@ -38,11 +39,42 @@ public class Semantico implements Constants {
             if (operador.equals("-")) {
                 gera_cod("SUB", token.getLexeme());
             }
+
+            if (operador.equals("&")) {
+                gera_cod("AND", token.getLexeme());
+            }
+            if (operador.equals("|")) {
+                gera_cod("OR", token.getLexeme());
+            }
+            if (operador.equals("~")) {
+                if(buscaSeVet(tipo, escopo)){
+                    gera_cod("LD", token.getLexeme());
+                    gera_cod("NOT", token.getLexeme() + ":");
+                }
+                if (indexExpVet > 0) {
+                    gera_cod("STO", "1003");
+
+                    gera_cod("LD", "1002");
+
+                    if (opAnt.equals("+")) {
+                        gera_cod("ADD", "1003");
+                    } else if (opAnt.equals("-")) {
+                        gera_cod("SUB", "1003");
+
+                    }
+                }
+
+            }
+
+            if (operador.equals("^")) {
+                gera_cod("XOR", token.getLexeme());
+            }
             flagOP = false;
 
         }
     }
-
+    
+    
     public void gera_codInteiro(Token token) {
 
         if (!vet) {
@@ -56,6 +88,33 @@ public class Semantico implements Constants {
 
                 if (operador.equals("-")) {
                     gera_cod("SUBI", token.getLexeme());
+                }
+                if (operador.equals("&")) {
+                    gera_cod("ANDI", token.getLexeme());
+                }
+                if (operador.equals("|")) {
+                    gera_cod("ORI", token.getLexeme());
+                }
+                if (operador.equals("^")) {
+                    gera_cod("XORI", token.getLexeme());
+                }
+
+                if (operador.equals(">>")) {
+                    gera_cod("SRL", token.getLexeme());
+                }
+                if (operador.equals("<<")) {
+                    gera_cod("SLL", token.getLexeme());
+                }
+                
+                if(operador.equals("~")){
+                    if(opAnt.equals("+")){
+                        gera_cod("ADDI",token.getLexeme());
+                    }else  if(opAnt.equals("-")){
+                        gera_cod("SUBI",token.getLexeme());
+                    }else{
+                        gera_cod("LDI", token.getLexeme());
+                    }
+                
                 }
                 flagOP = false;
 
@@ -441,6 +500,7 @@ public class Semantico implements Constants {
 
                     //System.out.println(elemento.getTipo());
                     tabSimb.add(elemento);
+                    nomeAtrib = nome;
                 }
                 break;
             case 3:
@@ -448,7 +508,7 @@ public class Semantico implements Constants {
                 if (!buscaNomeEscoposMaiores(nome)) {
                     throw new SemanticError("ERRO: Variavel: " + nome + " Não Declarada");
                 } else {
-                    
+
                     tipo_id = tipoStringToNum(buscaTipoTabela(nome));
                     pilhaExp.push(tipo_id);
                     nomeAtrib = nome;
@@ -456,7 +516,13 @@ public class Semantico implements Constants {
                 break;
             case 4:
                 pilhaExp.push(sTb.INT);
+                if (indexExpVet > 0) {
+                    flagOP = false;
+                }
                 gera_codInteiro(token);
+                if (indexExpVet > 0) {
+                    flagOP = true;
+                }
                 vet = false;
                 break;
             case 5:
@@ -498,13 +564,13 @@ public class Semantico implements Constants {
                     warning += "WARNING: Posivel perda de precisao  na atribuição de tipo " + tipoNumToString(tipo_exp) + " para tipo " + tipoNumToString(tipo_id) + "\n";
                 }
                 if (buscaSeVet(nomeAtrib, escopo)) {
-                    
+
                     gera_cod("STO", "1002");
                     gera_cod("LD", "1000");
                     gera_cod("STO", "$indr");
                     gera_cod("LD", "1002");
                     gera_cod("STOV", nomeAtrib);
-                    
+
                 } else {
 
                     insereInicializar(nome, BuscaEscopoVar(nome));
@@ -517,9 +583,15 @@ public class Semantico implements Constants {
 
             case 14:
                 pilhaExp.push(sTb.LOG);
+                flagOP = true;
+                operador = token.getLexeme();
+               
+
                 break;
             case 15:
                 pilhaExp.push(sTb.REL);
+                flagOP= true;
+                operador = token.getLexeme();
                 break;
             case 16:
                 pilhaExp.push(sTb.SUM);
@@ -613,10 +685,14 @@ public class Semantico implements Constants {
                     if (buscaSeVet(nome, escopo)) {
                         nomeVet = nome;
 
-                        if (indexExp > 0) {
+                        if (indexExp > 0 && !isNot) {
                             gera_cod("STO", "1002");
 
                         }
+                        tipo_id = tipoStringToNum(buscaTipoTabela(nome));
+                        pilhaExp.push(tipo_id);
+
+                        insereUsada(nome, BuscaEscopoVar(nome));
                         indexExpVet = indexExp;
 
                     } else {
@@ -625,7 +701,7 @@ public class Semantico implements Constants {
                         pilhaExp.push(tipo_id);
 
                         insereUsada(nome, BuscaEscopoVar(nome));
-
+                        
                         gera_codVar(token);
                     }
 
@@ -733,9 +809,24 @@ public class Semantico implements Constants {
                 }
                 break;
             case 43:
+                if (token.getLexeme().equals("!")) {
+                    pilhaExp.push(sTb.BOO);
 
-                pilhaExp.push(sTb.BOO);
+                } else if (token.getLexeme().equals("~")) {
+                    if (indexExp > 0) {
+
+                        gera_cod("STO", "1002");
+
+                        opAnt = operador;
+                    }
+                    
+                    pilhaExp.push(sTb.INT);
+                    isNot=true;
+                }
                 pilhaExp.push(sTb.NEGACAO);
+
+                flagOP = true;
+                operador = token.getLexeme();
 
                 break;
             case 44:
@@ -766,20 +857,34 @@ public class Semantico implements Constants {
                 if (indexExpVet == 0) {
                     gera_cod("STO", "$indr");
                     gera_cod("LDV", nomeVet);
+                    if(isNot){
+                        gera_cod("NOT", nomeVet);
+                        isNot=false;
+                    }
 
                 } else {
+                    String aux=operador;
                     gera_cod("STO", "$indr");
                     gera_cod("LDV", nomeVet);
+                    if(isNot){
+                        gera_cod("NOT", nomeVet+":");
+                    }
                     gera_cod("STO", "1003");
                     gera_cod("LD", "1002");
-                    flagOP = true;
+                    //if (!operador.equals("~")) {
+                        flagOP = true;
+                      
+                   // }
                     gera_codVar(new Token(0, "1003", 0));
-                    flagOP = false;
+                    //if (!operador.equals("~")) {
+                        flagOP = false;
+                      
+                   // }
                 }
                 indexExpVet = 0;
                 break;
             case 51:
-                gera_cod("STO","1000");
+                gera_cod("STO", "1000");
                 break;
         }
 
