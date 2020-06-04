@@ -77,3 +77,24 @@ inteiro MAIN(){
 inteiro A[2],B,C=0;
 B=1+A[0];
 }
+
+
+
+inteiro MAIN (){
+inteiro A,B;
+se(A>B){
+B=1;
+}
+
+}
+
+
+inteiro MAIN (){
+inteiro A,B;
+se(A>B){
+B=1;
+}senao{
+B=2;
+}
+
+}

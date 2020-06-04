@@ -9,12 +9,15 @@ public class Semantico implements Constants {
     Stack<Integer> pilhaEscopo = new Stack(), pilhaEscAux = new Stack();
     Stack<Integer> pilhaExp = new Stack();
     Stack<String> pilhaRotulos = new Stack();
+    Stack<String> pilhaFimPara = new Stack();
     List<TabelaDeSimbolos> tabSimb = new ArrayList<>();
-    String nome = "", nomeAtrib = "", nomeVet = "", tipo = "", warning = "", nome_func = "", src = ".text\n", operador = "", opAnt = "";
+    String nome = "", nomeAtrib = "", nomeVet = "", tipo = "", warning = "", nome_func = "", src = ".text\n", operador = "", opAnt = "", codTempLopPara = "",
+            rotSe = "", rotFim = "", rotIni = "", nomeLopPara = "";
     boolean inicializada = false, parametros = false, vet = false, ref = false, func = false, seFunc = false, flagOP = false, isNot = false, expIndexVet = false;
     SemanticTable sTb = new SemanticTable();
     int escopo = 0, tipo_id = -1, tipo_exp = -1, tipo1 = -1, tipo2 = -1, operacao = -1, resultAtrib = -1, ordemParam = -1, posicao = 1,
-            indexExp = 0, indexVetIndex = 0, indexExpVet = 0, escopo_temp = -1, qtd_param = 0, qtd_chama_param = 0, tipo_param = -1, escopo_inter_func = 0;
+            indexExp = 0, indexVetIndex = 0, indexExpVet = 0, escopo_temp = -1, qtd_param = 0, qtd_chama_param = 0, tipo_param = -1,
+            escopo_inter_func = 0, contRot = 0;
 
     public List<TabelaDeSimbolos> getTabSimb() {
         return tabSimb;
@@ -47,15 +50,13 @@ public class Semantico implements Constants {
                 gera_cod("OR", token.getLexeme());
             }
             if (operador.equals("~")) {
-                if (buscaSeVet(nome, escopo)) {
+                if (buscaSeVet(nome, BuscaEscopoVar(nome))) {
 
-                   // gera_cod("NOT", token.getLexeme() + ":");
-
+                    // gera_cod("NOT", token.getLexeme() + ":");
                     if (indexExpVet > 0) {
-                      //  gera_cod("STO", "1003");
+                        //  gera_cod("STO", "1003");
 
-                       // gera_cod("LD", "1002");
-
+                        // gera_cod("LD", "1002");
                         if (opAnt.equals("+")) {
                             gera_cod("ADD", "1003");
                         } else if (opAnt.equals("-")) {
@@ -63,11 +64,12 @@ public class Semantico implements Constants {
 
                         }
                     }
-                }
-                if (!buscaSeVet(nome, escopo)) {
-                   // gera_cod("LD", token.getLexeme());
-                   // gera_cod("NOT", token.getLexeme() + ":");
+                }else{
+               // if (!buscaSeVet(nome, BuscaEscopoVar(nome))) {
+                     gera_cod("LD", token.getLexeme());
+                     gera_cod("NOT", token.getLexeme() + ":");
                     if (indexExp > 0) {
+                        //gera_cod("NOT", token.getLexeme() + ":");
                         gera_cod("STO", "1003");
 
                         gera_cod("LD", "1002");
@@ -136,6 +138,50 @@ public class Semantico implements Constants {
 
             }
         }
+    }
+
+    public void gera_desvio(String rotulo) {
+        if (operador.equals(">")) {
+            gera_cod("BLE", rotulo);
+        }
+        if (operador.equals("<")) {
+            gera_cod("BGE", rotulo);
+        }
+        if (operador.equals(">=")) {
+            gera_cod("BLT", rotulo);
+        }
+        if (operador.equals("<=")) {
+            gera_cod("BGT", rotulo);
+        }
+        if (operador.equals("==")) {
+            gera_cod("BNE", rotulo);
+        }
+        if (operador.equals("!=")) {
+            gera_cod("BEQ", rotulo);
+        }
+
+    }
+
+    public void gera_desvioFazEnq(String rotulo) {
+        if (operador.equals(">")) {
+            gera_cod("BGT", rotulo);
+        }
+        if (operador.equals("<")) {
+            gera_cod("BLT", rotulo);
+        }
+        if (operador.equals(">=")) {
+            gera_cod("BGE", rotulo);
+        }
+        if (operador.equals("<=")) {
+            gera_cod("BLE", rotulo);
+        }
+        if (operador.equals("==")) {
+            gera_cod("BEQ", rotulo);
+        }
+        if (operador.equals("!=")) {
+            gera_cod("BNE", rotulo);
+        }
+
     }
 
     public String getSrc() {
@@ -528,24 +574,22 @@ public class Semantico implements Constants {
                     tipo_id = tipoStringToNum(buscaTipoTabela(nome));
                     pilhaExp.push(tipo_id);
                     nomeAtrib = nome;
+
                 }
                 break;
             case 4:
                 pilhaExp.push(sTb.INT);
 
-                if (!expIndexVet) {
+                if ((indexVetIndex == 0 && expIndexVet) | (indexExp == 0 && !expIndexVet)) {
                     flagOP = false;
                 }
-                if (indexExpVet > 0) {
-                    flagOP = false;
-                }
+
                 gera_codInteiro(token);
-                if (indexExpVet > 0) {
+
+                if ((indexVetIndex == 0 && expIndexVet) | (indexExp == 0 && !expIndexVet)) {
                     flagOP = true;
                 }
-                if (expIndexVet) {
-                    flagOP = true;
-                }
+
                 vet = false;
                 break;
             case 5:
@@ -586,7 +630,7 @@ public class Semantico implements Constants {
                 if (resultAtrib == sTb.WAR) {
                     warning += "WARNING: Posivel perda de precisao  na atribuição de tipo " + tipoNumToString(tipo_exp) + " para tipo " + tipoNumToString(tipo_id) + "\n";
                 }
-                if (buscaSeVet(nomeAtrib, escopo)) {
+                if (buscaSeVet(nomeAtrib, BuscaEscopoVar(nomeAtrib))) {
 
                     gera_cod("STO", "1002");
                     gera_cod("LD", "1000");
@@ -614,6 +658,7 @@ public class Semantico implements Constants {
                 pilhaExp.push(sTb.REL);
                 flagOP = true;
                 operador = token.getLexeme();
+                gera_cod("STO", "1000");
                 break;
             case 16:
                 pilhaExp.push(sTb.SUM);
@@ -676,6 +721,7 @@ public class Semantico implements Constants {
 
                     //System.out.println(elemento.getTipo());
                     tabSimb.add(elemento);
+                    nomeAtrib = nome;
                     vet = true;
                 }
                 break;
@@ -693,6 +739,9 @@ public class Semantico implements Constants {
                 break;
             case 26:
                 trataExp();
+                gera_cod("STO", "1001");
+                gera_cod("LD", "1000");
+                gera_cod("SUB", "1001");
                 break;
             case 27:
                 trataExp();
@@ -712,7 +761,7 @@ public class Semantico implements Constants {
                         warning += "WARNING: Varivel " + nome + " não inicializada, pode conter lixo de memoria \n";
                     }
 
-                    if (buscaSeVet(nome, escopo)) {
+                    if (buscaSeVet(nome, BuscaEscopoVar(nome))) {
                         nomeVet = nome;
 
                         if (indexExp > 0 && !isNot) {
@@ -732,13 +781,14 @@ public class Semantico implements Constants {
 
                         insereUsada(nome, BuscaEscopoVar(nome));
 
-                        if (expIndexVet && indexVetIndex == 0) {
+                        if (((expIndexVet && indexVetIndex == 0) | indexExp == 0) && !isNot) {
                             flagOP = false;
                         }
                         gera_codVar(token);
-                        if (expIndexVet && indexVetIndex == 0) {
+                        if (((expIndexVet && indexVetIndex == 0) | indexExp == 0) && !isNot) {
                             flagOP = true;
                         }
+                        
 
                     }
 
@@ -830,11 +880,13 @@ public class Semantico implements Constants {
                 break;
             case 41:
                 nome = token.getLexeme();
-                if (buscaSeFuncTabela(tipo, pilhaEscopo.peek())) {
+                if (buscaSeFuncTabela(nome, pilhaEscopo.peek())) {
                     throw new SemanticError("ERRO: Entrada de dados somente aceita variaveis");
                 }
                 gera_cod("LD", "$in_port");
-                gera_cod("STO", nome);
+                if (!buscaSeVet(nome, BuscaEscopoVar(nome))) {
+                    gera_cod("STO", nome);
+                }
 
                 break;
             case 42:
@@ -895,7 +947,7 @@ public class Semantico implements Constants {
                     gera_cod("STO", "$indr");
                     gera_cod("LDV", nomeVet);
                     if (isNot) {
-                        gera_cod("NOT", nomeVet);
+                        gera_cod("NOT", nomeVet + ":");
 
                     }
 
@@ -907,7 +959,7 @@ public class Semantico implements Constants {
                         gera_cod("NOT", nomeVet + ":");
                         gera_cod("STO", "1003");
                         gera_cod("LD", "1002");
-                    }else{
+                    } else {
                         gera_cod("STO", "1003");
                         gera_cod("LD", "1002");
                     }
@@ -927,7 +979,7 @@ public class Semantico implements Constants {
 
                     // }
                 }
-                indexExpVet = 0;
+                indexVetIndex = 0;
                 break;
             case 51:
                 gera_cod("STO", "1000");
@@ -938,6 +990,87 @@ public class Semantico implements Constants {
                 break;
             case 53:
                 expIndexVet = false;
+                break;
+            case 54:
+                contRot++;
+                rotSe = "SE" + contRot;
+                pilhaRotulos.push(rotSe);
+                gera_desvio(rotSe);
+                break;
+            case 55:
+                rotFim = pilhaRotulos.pop();
+                gera_cod(rotFim, ":");
+                break;
+            case 56:
+                rotSe = pilhaRotulos.pop();
+                rotFim = "FIM_SE" + contRot;
+                gera_cod("JMP", rotFim);
+                pilhaRotulos.push(rotFim);
+                gera_cod(rotSe, ":");
+                break;
+
+            case 57:
+                contRot++;
+                rotIni = "Ini_" + token.getLexeme() + "_" + contRot;
+                pilhaRotulos.push(rotIni);
+                gera_cod(rotIni, ":");
+                break;
+            case 58:
+                if(rotIni.contains("Para")){
+                    rotFim = "FimPara" + contRot;
+                }else{
+                rotFim = "FimEnq" + contRot;
+                }
+                pilhaRotulos.push(rotFim);
+                gera_desvio(rotFim);
+                break;
+            case 59:
+                rotFim = pilhaRotulos.pop();
+                rotIni = pilhaRotulos.pop();
+                gera_cod("JMP", rotIni);
+                gera_cod(rotFim, ":");
+                break;
+            case 60:
+                rotIni = pilhaRotulos.pop();
+                gera_desvioFazEnq(rotIni);
+
+                break;
+            case 61:
+                nomeLopPara = nome;
+                contRot++;
+                rotIni = "Ini" + "Para" + contRot;
+                pilhaRotulos.push(rotIni);
+                gera_cod(rotIni, ":");
+                break;
+            case 62:
+                codTempLopPara = "   LD   " + nomeLopPara + "\n";
+                if (token.getLexeme().equals("++")) {
+                   codTempLopPara +="   ADDI   1\n";
+                }
+                if(token.getLexeme().equals("--")){
+                 codTempLopPara +="   SUBI   1\n";
+                }
+                codTempLopPara += "   STO   " + nomeLopPara + "\n";
+                
+                pilhaFimPara.push(codTempLopPara);
+                break;
+            case 63:
+                src += pilhaFimPara.pop();
+                rotFim = pilhaRotulos.pop();
+                rotIni = pilhaRotulos.pop();
+                gera_cod("JMP", rotIni);
+                gera_cod(rotFim, ":");
+                break;
+            case 64:
+                 nome = token.getLexeme();
+                if (buscaSeFuncTabela(nome, pilhaEscopo.peek())) {
+                    throw new SemanticError("ERRO: Entrada de dados somente aceita variaveis");
+                }
+                break;
+            case 65:
+                gera_cod("STO", "$indr");
+                gera_cod("LD", "$in_port");
+                gera_cod("STOV", nome);
                 break;
         }
 

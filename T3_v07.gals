@@ -305,13 +305,13 @@ ID:[A-Z](_|[A-Z0-9])*
 <usaVet>::= I_COLCHETES#52 <exp2>#9  F_COLCHETES#53  ;
 
 //DESVIO CONDICIONAL
-<condicional>::=  SE I_PARENTESES#10  <exp2> #39 F_PARENTESES <escopo> <condicional2> ;
-<condicional2>::=  SENAO#10 <escopo> | î ;
+<condicional>::=  SE I_PARENTESES#10  <exp2> #39 F_PARENTESES #54 <escopo> <condicional2>#55 ;
+<condicional2>::=  SENAO#10 #56 <escopo> | î ;
 
 <fim_exp> ::= î | PONTO_VIRGULA ; 
 
 <entrada_saida>::= <entrada> | <saida> ;
-<entrada>::= ENTRADA I_PARENTESES ID#41  F_PARENTESES ;
+<entrada>::= ENTRADA I_PARENTESES ID#41  F_PARENTESES | ENTRADA I_PARENTESES ID#64 <usaVet>#65  F_PARENTESES ;
 <saida>::= ESCREVA I_PARENTESES <exp2>#48 F_PARENTESES ;
 
 <tipos_var> ::= HEXA #1 | BINARIO #1 | DECIMAL #1 | INTEIRO #1 | LETRA #1 | TEXTO #1 | LOGICO #1 | VAZIO #1 ;
@@ -320,9 +320,13 @@ ID:[A-Z](_|[A-Z0-9])*
 
 //lacos de repeticao
 <repeticao>::= <faz> | <para> | <enquanto> ;
-<faz>::= FAZ#10 <escopo> ENQUANTO I_PARENTESES  <exp2>#39 F_PARENTESES  PONTO_VIRGULA ;
-<enquanto>::= ENQUANTO I_PARENTESES#10  <exp2>#39 F_PARENTESES  <escopo>  ; 
-<para>::= PARA I_PARENTESES #10 <inicio_para> PONTO_VIRGULA <exp2>#39  PONTO_VIRGULA ID <op_sufix> F_PARENTESES <escopo> ;
+
+<faz>::=  FAZ#10#57 <escopo> ENQUANTO I_PARENTESES  <exp2>#39 F_PARENTESES #60 PONTO_VIRGULA ;
+
+<enquanto>::= ENQUANTO#57 I_PARENTESES#10  <exp2>#39 F_PARENTESES#58  <escopo> #59 ; 
+
+<para>::= PARA I_PARENTESES #10 <inicio_para> #61 PONTO_VIRGULA <exp2>#39 #58 PONTO_VIRGULA ID  <op_sufix> #62 F_PARENTESES <escopo> #63 ;
+
 //para permitir que a primeira parte do "para" permita uma expressao  , ou uma definicao de variaveis 
 <inicio_para>::= ID#3 <atribuicao> #12 | <tipos_var> ID #2 <atribuicao> #12 ;
 

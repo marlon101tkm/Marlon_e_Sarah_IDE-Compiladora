@@ -10,11 +10,13 @@ public class Semantico implements Constants {
     Stack<Integer> pilhaExp = new Stack();
     Stack<String> pilhaRotulos = new Stack();
     List<TabelaDeSimbolos> tabSimb = new ArrayList<>();
-    String nome = "", nomeAtrib = "", nomeVet = "", tipo = "", warning = "", nome_func = "", src = ".text\n", operador = "", opAnt = "";
-    boolean inicializada = false, parametros = false, vet = false, ref = false, func = false, seFunc = false, flagOP = false, isNot=false;
+    String nome = "", nomeAtrib = "", nomeVet = "", tipo = "", warning = "", nome_func = "", src = ".text\n", operador = "", opAnt = "", opRel = "",
+            rotSe = "", rotFim = "", rotIni = "";
+    boolean inicializada = false, parametros = false, vet = false, ref = false, func = false, seFunc = false, flagOP = false, isNot = false, expIndexVet = false;
     SemanticTable sTb = new SemanticTable();
     int escopo = 0, tipo_id = -1, tipo_exp = -1, tipo1 = -1, tipo2 = -1, operacao = -1, resultAtrib = -1, ordemParam = -1, posicao = 1,
-            indexExp = 0, indexExpVet = 0, escopo_temp = -1, qtd_param = 0, qtd_chama_param = 0, tipo_param = -1, escopo_inter_func = 0;
+            indexExp = 0, indexVetIndex = 0, indexExpVet = 0, escopo_temp = -1, qtd_param = 0, qtd_chama_param = 0, tipo_param = -1,
+            escopo_inter_func = 0, contRot = 0;
 
     public List<TabelaDeSimbolos> getTabSimb() {
         return tabSimb;
@@ -47,34 +49,48 @@ public class Semantico implements Constants {
                 gera_cod("OR", token.getLexeme());
             }
             if (operador.equals("~")) {
-                if(buscaSeVet(tipo, escopo)){
-                    gera_cod("LD", token.getLexeme());
-                    gera_cod("NOT", token.getLexeme() + ":");
-                }
-                if (indexExpVet > 0) {
-                    gera_cod("STO", "1003");
+                if (buscaSeVet(nome, BuscaEscopoVar(nome))) {
 
-                    gera_cod("LD", "1002");
+                    // gera_cod("NOT", token.getLexeme() + ":");
+                    if (indexExpVet > 0) {
+                        //  gera_cod("STO", "1003");
 
-                    if (opAnt.equals("+")) {
-                        gera_cod("ADD", "1003");
-                    } else if (opAnt.equals("-")) {
-                        gera_cod("SUB", "1003");
+                        // gera_cod("LD", "1002");
+                        if (opAnt.equals("+")) {
+                            gera_cod("ADD", "1003");
+                        } else if (opAnt.equals("-")) {
+                            gera_cod("SUB", "1003");
 
+                        }
                     }
                 }
+                if (!buscaSeVet(nome,BuscaEscopoVar(nome))) {
+                    // gera_cod("LD", token.getLexeme());
+                    // gera_cod("NOT", token.getLexeme() + ":");
+                    if (indexExp > 0) {
+                        gera_cod("STO", "1003");
+
+                        gera_cod("LD", "1002");
+
+                        if (opAnt.equals("+")) {
+                            gera_cod("ADD", "1003");
+                        } else if (opAnt.equals("-")) {
+                            gera_cod("SUB", "1003");
+
+                        }
+                    }
+
+                }
+
+                if (operador.equals("^")) {
+                    gera_cod("XOR", token.getLexeme());
+                }
+                flagOP = false;
 
             }
-
-            if (operador.equals("^")) {
-                gera_cod("XOR", token.getLexeme());
-            }
-            flagOP = false;
-
         }
     }
-    
-    
+
     public void gera_codInteiro(Token token) {
 
         if (!vet) {
@@ -105,21 +121,65 @@ public class Semantico implements Constants {
                 if (operador.equals("<<")) {
                     gera_cod("SLL", token.getLexeme());
                 }
-                
-                if(operador.equals("~")){
-                    if(opAnt.equals("+")){
-                        gera_cod("ADDI",token.getLexeme());
-                    }else  if(opAnt.equals("-")){
-                        gera_cod("SUBI",token.getLexeme());
-                    }else{
+
+                if (operador.equals("~")) {
+                    if (opAnt.equals("+")) {
+                        gera_cod("ADDI", token.getLexeme());
+                    } else if (opAnt.equals("-")) {
+                        gera_cod("SUBI", token.getLexeme());
+                    } else {
                         gera_cod("LDI", token.getLexeme());
                     }
-                
+
                 }
                 flagOP = false;
 
             }
         }
+    }
+
+    public void gera_desvio(String rotulo) {
+        if (operador.equals(">")) {
+            gera_cod("BLE", rotulo);
+        }
+        if (operador.equals("<")) {
+            gera_cod("BGE", rotulo);
+        }
+        if (operador.equals(">=")) {
+            gera_cod("BLT", rotulo);
+        }
+        if (operador.equals("<=")) {
+            gera_cod("BGT", rotulo);
+        }
+        if (operador.equals("==")) {
+            gera_cod("BNE", rotulo);
+        }
+        if (operador.equals("!=")) {
+            gera_cod("BEQ", rotulo);
+        }
+
+    }
+
+    public void gera_desvioFazEnq(String rotulo) {
+        if (operador.equals(">")) {
+            gera_cod("BGT", rotulo);
+        }
+        if (operador.equals("<")) {
+            gera_cod("BLT", rotulo);
+        }
+        if (operador.equals(">=")) {
+            gera_cod("BGE", rotulo);
+        }
+        if (operador.equals("<=")) {
+            gera_cod("BLE", rotulo);
+        }
+        if (operador.equals("==")) {
+            gera_cod("BEQ", rotulo);
+        }
+        if (operador.equals("!=")) {
+            gera_cod("BNE", rotulo);
+        }
+
     }
 
     public String getSrc() {
@@ -512,17 +572,22 @@ public class Semantico implements Constants {
                     tipo_id = tipoStringToNum(buscaTipoTabela(nome));
                     pilhaExp.push(tipo_id);
                     nomeAtrib = nome;
+
                 }
                 break;
             case 4:
                 pilhaExp.push(sTb.INT);
-                if (indexExpVet > 0) {
+
+                if ((indexVetIndex == 0 && expIndexVet) | (indexExp == 0 && !expIndexVet)) {
                     flagOP = false;
                 }
+
                 gera_codInteiro(token);
-                if (indexExpVet > 0) {
+
+                if ((indexVetIndex == 0 && expIndexVet) | (indexExp == 0 && !expIndexVet)) {
                     flagOP = true;
                 }
+
                 vet = false;
                 break;
             case 5:
@@ -563,7 +628,7 @@ public class Semantico implements Constants {
                 if (resultAtrib == sTb.WAR) {
                     warning += "WARNING: Posivel perda de precisao  na atribuição de tipo " + tipoNumToString(tipo_exp) + " para tipo " + tipoNumToString(tipo_id) + "\n";
                 }
-                if (buscaSeVet(nomeAtrib, escopo)) {
+                if (buscaSeVet(nomeAtrib, BuscaEscopoVar(nomeAtrib))) {
 
                     gera_cod("STO", "1002");
                     gera_cod("LD", "1000");
@@ -585,26 +650,34 @@ public class Semantico implements Constants {
                 pilhaExp.push(sTb.LOG);
                 flagOP = true;
                 operador = token.getLexeme();
-               
 
                 break;
             case 15:
                 pilhaExp.push(sTb.REL);
-                flagOP= true;
+                flagOP = true;
                 operador = token.getLexeme();
+                gera_cod("STO", "1000");
                 break;
             case 16:
                 pilhaExp.push(sTb.SUM);
 
                 flagOP = true;
                 operador = token.getLexeme();
-                indexExp++;
+                if (expIndexVet) {
+                    indexVetIndex++;
+                } else {
+                    indexExp++;
+                }
                 break;
             case 17:
                 pilhaExp.push(sTb.SUB);
                 flagOP = true;
                 operador = token.getLexeme();
-                indexExp++;
+                if (expIndexVet) {
+                    indexVetIndex++;
+                } else {
+                    indexExp++;
+                }
                 break;
             case 18:
                 pilhaExp.push(sTb.MUL);
@@ -646,6 +719,7 @@ public class Semantico implements Constants {
 
                     //System.out.println(elemento.getTipo());
                     tabSimb.add(elemento);
+                    nomeAtrib = nome;
                     vet = true;
                 }
                 break;
@@ -663,6 +737,9 @@ public class Semantico implements Constants {
                 break;
             case 26:
                 trataExp();
+                gera_cod("STO", "1001");
+                gera_cod("LD", "1000");
+                gera_cod("SUB", "1001");
                 break;
             case 27:
                 trataExp();
@@ -682,7 +759,7 @@ public class Semantico implements Constants {
                         warning += "WARNING: Varivel " + nome + " não inicializada, pode conter lixo de memoria \n";
                     }
 
-                    if (buscaSeVet(nome, escopo)) {
+                    if (buscaSeVet(nome, BuscaEscopoVar(nome))) {
                         nomeVet = nome;
 
                         if (indexExp > 0 && !isNot) {
@@ -701,8 +778,15 @@ public class Semantico implements Constants {
                         pilhaExp.push(tipo_id);
 
                         insereUsada(nome, BuscaEscopoVar(nome));
-                        
+
+                        if (((expIndexVet && indexVetIndex == 0) | indexExp == 0) && !isNot) {
+                            flagOP = false;
+                        }
                         gera_codVar(token);
+                        if (((expIndexVet && indexVetIndex == 0) | indexExp == 0) && !isNot) {
+                            flagOP = true;
+                        }
+
                     }
 
                 }
@@ -797,7 +881,9 @@ public class Semantico implements Constants {
                     throw new SemanticError("ERRO: Entrada de dados somente aceita variaveis");
                 }
                 gera_cod("LD", "$in_port");
-                gera_cod("STO", nome);
+                if (!buscaSeVet(nome, BuscaEscopoVar(nome))) {
+                    gera_cod("STO", nome);
+                }
 
                 break;
             case 42:
@@ -819,9 +905,9 @@ public class Semantico implements Constants {
 
                         opAnt = operador;
                     }
-                    
+
                     pilhaExp.push(sTb.INT);
-                    isNot=true;
+                    isNot = true;
                 }
                 pilhaExp.push(sTb.NEGACAO);
 
@@ -857,34 +943,97 @@ public class Semantico implements Constants {
                 if (indexExpVet == 0) {
                     gera_cod("STO", "$indr");
                     gera_cod("LDV", nomeVet);
-                    if(isNot){
+                    if (isNot) {
                         gera_cod("NOT", nomeVet);
-                        isNot=false;
+
                     }
 
                 } else {
-                    String aux=operador;
+                    String aux = operador;
                     gera_cod("STO", "$indr");
                     gera_cod("LDV", nomeVet);
-                    if(isNot){
-                        gera_cod("NOT", nomeVet+":");
+                    if (isNot) {
+                        gera_cod("NOT", nomeVet + ":");
+                        gera_cod("STO", "1003");
+                        gera_cod("LD", "1002");
+                    } else {
+                        gera_cod("STO", "1003");
+                        gera_cod("LD", "1002");
                     }
-                    gera_cod("STO", "1003");
-                    gera_cod("LD", "1002");
+                    // gera_cod("STO", "1003");
+                    //gera_cod("LD", "1002");
+
                     //if (!operador.equals("~")) {
-                        flagOP = true;
-                      
-                   // }
+                    flagOP = true;
+
+                    // }
                     gera_codVar(new Token(0, "1003", 0));
                     //if (!operador.equals("~")) {
-                        flagOP = false;
-                      
-                   // }
+                    flagOP = false;
+                    if (isNot) {
+                        isNot = false;
+                    }
+
+                    // }
                 }
-                indexExpVet = 0;
+                indexVetIndex = 0;
                 break;
             case 51:
                 gera_cod("STO", "1000");
+                break;
+
+            case 52:
+                expIndexVet = true;
+                break;
+            case 53:
+                expIndexVet = false;
+                break;
+            case 54:
+                contRot++;
+                rotSe = "SE" + contRot;
+                pilhaRotulos.push(rotSe);
+                gera_desvio(rotSe);
+                break;
+            case 55:
+                rotFim = pilhaRotulos.pop();
+                gera_cod(rotFim, ":");
+                break;
+            case 56:
+                rotSe = pilhaRotulos.pop();
+                rotFim = "FIM_SE" + contRot;
+                gera_cod("JMP", rotFim);
+                pilhaRotulos.push(rotFim);
+                gera_cod(rotSe, ":");
+                break;
+
+            case 57:
+                contRot++;
+                rotIni = "Ini" + token.getLexeme() + contRot;
+                pilhaRotulos.push(rotIni);
+                gera_cod(rotIni, ":");
+                break;
+            case 58:
+                rotFim = "FimEnq" + contRot;
+                pilhaRotulos.push(rotFim);
+                gera_desvio(rotFim);
+                break;
+            case 59:
+                rotFim = pilhaRotulos.pop();
+                rotIni = pilhaRotulos.pop();
+                gera_cod("JMP", rotIni);
+                gera_cod(rotFim, ":");
+                break;
+            case 60:
+                rotIni = pilhaRotulos.pop();
+                gera_desvioFazEnq(rotIni);
+
+                break;
+            case 61:
+                break;
+            case 62:
+                break;
+
+            case 63:
                 break;
         }
 
