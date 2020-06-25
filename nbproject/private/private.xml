@@ -3,8 +3,9 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/Win10/Desktop/Marlon/Faculdade/7°%20Periodo/Compiladores/Marlon_e_Sarah_IDE%20Compiladora/src/Sintatico.java</file>
             <file>file:/C:/Users/Win10/Desktop/Marlon/Faculdade/7°%20Periodo/Compiladores/Marlon_e_Sarah_IDE%20Compiladora/src/ScannerConstants.java</file>
+            <file>file:/C:/Users/Win10/Desktop/Marlon/Faculdade/7°%20Periodo/Compiladores/Marlon_e_Sarah_IDE%20Compiladora/src/SemanticError.java</file>
+            <file>file:/C:/Users/Win10/Desktop/Marlon/Faculdade/7°%20Periodo/Compiladores/Marlon_e_Sarah_IDE%20Compiladora/src/SemanticTable.java</file>
             <file>file:/C:/Users/Win10/Desktop/Marlon/Faculdade/7°%20Periodo/Compiladores/Marlon_e_Sarah_IDE%20Compiladora/src/Semantico.java</file>
         </group>
     </open-files>

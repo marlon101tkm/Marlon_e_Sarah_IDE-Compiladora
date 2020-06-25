@@ -250,7 +250,7 @@ public class Tela extends javax.swing.JFrame {
 
     private void codGeradoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_codGeradoActionPerformed
         String codFinal;
-        codFinal = codData+codExe+"HLT"+" "+"0"; 
+        codFinal = codData+codExe+"                HLT \t 0"; 
         gerado.setCaixaTexto(codFinal);
         gerado.setVisible(true);
         

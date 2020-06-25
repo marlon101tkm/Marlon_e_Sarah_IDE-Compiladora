@@ -98,3 +98,38 @@ B=2;
 }
 
 }
+
+
+
+
+
+
+
+inteiro TESTE(inteiro B,inteiro C){
+B=B+C;
+retorna B;
+}
+vazio PRINCIPAL(){
+inteiro D;
+D=   TESTE(1+1,2)+1;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+inteiro TESTE(inteiro B){
+B=B+1;
+retorna B;
+}
+vazio PRINCIPAL(){
+inteiro B;
+B = TESTE(B);
+}
