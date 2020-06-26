@@ -12,13 +12,13 @@ public class Semantico implements Constants {
     Stack<String> pilhaFimPara = new Stack();
     List<TabelaDeSimbolos> tabSimb = new ArrayList<>();
     String nome = "", nomeAtrib = "", nomeVet = "", tipo = "", warning = "", nome_func = "", src = ".text\n                JMP\t _PRINCIPAL \n", operador = "", opAnt = "", codTempLopPara = "",
-            rotSe = "", rotFim = "", rotIni = "", nomeLopPara = "", nome_call = "";
+            rotSe = "", rotFim = "", rotIni = "", nomeLopPara = "", nome_call = "", opAntVet = "", opAntFunc = "";
     boolean inicializada = false, parametros = false, vet = false, ref = false, isRetornavel = false,
             func = false, seFunc = false, flagOP = false, isNot = false, expIndexVet = false, isParam = false, seRetornou = false;
     SemanticTable sTb = new SemanticTable();
     int escopo = 0, tipo_id = -1, tipo_exp = -1, tipo1 = -1, tipo2 = -1, operacao = -1, resultAtrib = -1, ordemParam = -1, posicao = 1,
             indexExp = 0, indexVetIndex = 0, indexExpVet = 0, escopo_temp = -1, qtd_param = 0, qtd_chama_param = 0, tipo_param = -1,
-            escopo_inter_func = 0, contRot = 0, indeExpParam = 0;
+            escopo_inter_func = 0, contRot = 0, indeExpParam = 0, indexExpAntFunc = 0;
 
     public List<TabelaDeSimbolos> getTabSimb() {
         return tabSimb;
@@ -573,8 +573,14 @@ public class Semantico implements Constants {
     public boolean testeAltFlagOpInteiro() {
 
         if (isParam) {
+            
+            if (expIndexVet) {
 
+            return indexVetIndex == 0;
+            }
+            
             return indeExpParam == 0;
+            
         }
 
         if (expIndexVet) {
@@ -584,6 +590,21 @@ public class Semantico implements Constants {
 
         return indexExp == 0;
 
+    }
+
+    public void testeIndexOp() {
+
+        if (isParam | expIndexVet) {
+            if (expIndexVet) {
+                indexVetIndex++;
+            }
+            if (isParam) {
+                indeExpParam++;
+            }
+        } else {
+           
+            indexExp++;
+        }
     }
 
     public boolean testeAltFlagOpVar() {
@@ -734,28 +755,16 @@ public class Semantico implements Constants {
                 flagOP = true;
                 operador = token.getLexeme();
 
-                if (expIndexVet) {
-                    indexVetIndex++;
-                } else if (isParam) {
-                    indeExpParam++;
-                } else {
-                    opAnt = operador;
-                    indexExp++;
-                }
+                testeIndexOp();
+//          
                 break;
             case 17:
                 pilhaExp.push(sTb.SUB);
                 flagOP = true;
                 operador = token.getLexeme();
-                opAnt = operador;
-                if (expIndexVet) {
-                    indexVetIndex++;
-                } else if (isParam) {
 
-                    indeExpParam++;
-                } else {
-                    indexExp++;
-                }
+                testeIndexOp();
+//           
                 break;
             case 18:
                 pilhaExp.push(sTb.MUL);
@@ -789,7 +798,7 @@ public class Semantico implements Constants {
                 }
                 break;
             case 21:
-                nome = token.getLexeme();
+                nome = nome_func + "_" + token.getLexeme();
                 //System.out.println(nome);
                 if (buscaNomeTabela(nome, escopo)) {
                     throw new SemanticError("ERRO: variavel já declarada");
@@ -846,16 +855,22 @@ public class Semantico implements Constants {
                     if (buscaSeVet(nome, BuscaEscopoVar(nome))) {
                         nomeVet = nome;
 
-                        if (indexExp > 0 && !isNot) {
+                        if ((indexExp > 0 | indeExpParam > 0 ) && !isNot) {
                             gera_cod("STO", "1002");
+                             opAntVet = operador;
 
                         }
                         tipo_id = tipoStringToNum(buscaTipoTabela(nome));
                         pilhaExp.push(tipo_id);
 
                         insereUsada(nome, BuscaEscopoVar(nome));
-                        indexExpVet = indexExp;
-
+                        if (isParam) {
+                            indexExpVet = indeExpParam;
+                        } else {
+                            indexExpVet = indexExp;
+                        }
+                      
+                        
                     } else {
 
                         tipo_id = tipoStringToNum(buscaTipoTabela(nome));
@@ -864,27 +879,26 @@ public class Semantico implements Constants {
                         insereUsada(nome, BuscaEscopoVar(nome));
 
 //                        if (((expIndexVet && indexVetIndex == 0) | indexExp == 0 | indeExpParam==0) && !isNot) {
-                    if(testeAltFlagOpVar()){
-                        flagOP = false;
-                    }
-                    gera_codVar(new Token(0, nome, 0));
+                        if (testeAltFlagOpVar()) {
+                            flagOP = false;
+                        }
+                        gera_codVar(new Token(0, nome, 0));
 //                    if (((expIndexVet && indexVetIndex == 0) | indexExp == 0 | indeExpParam == 0) && !isNot) {
-                    if(testeAltFlagOpVar()){
-                        flagOP = true;
-                    }
+                        if (testeAltFlagOpVar()) {
+                            flagOP = true;
+                        }
 
-                    if (buscaSeParam(nome, BuscaEscopoVar(nome))) {
+                        if (buscaSeParam(nome, BuscaEscopoVar(nome))) {
 
-                        gera_cod(nome_call, buscaNomeParam(tipo, contRot));
+                            gera_cod(nome_call, buscaNomeParam(tipo, contRot));
+                        }
+
                     }
 
                 }
+                break;
 
-        }
-        break;
-    
-
-case 31:
+            case 31:
                 if (!buscaNomeTabela(nome, escopo)) {
                     throw new SemanticError("ERRO: Variavel: " + nome + " Não Declarada");
                 }
@@ -893,7 +907,7 @@ case 31:
                 break;
             case 32:
                 posicao++;
-              
+
                 break;
             case 33:
                 insereQtdParam(nome_func, escopo_temp, posicao);
@@ -914,7 +928,7 @@ case 31:
                 }
 
                 gera_cod("STO", buscaNomeParam(nome_call, qtd_chama_param));
-                indeExpParam= 0;
+                indeExpParam = 0;
                 break;
             case 36:
                 nome = "_" + token.getLexeme();
@@ -931,9 +945,11 @@ case 31:
                     tipo_id = tipoStringToNum(buscaTipoTabela(nome));
                     pilhaExp.push(tipo_id);
                     insereUsada(nome, escopo);
-                    
+
                     if (indexExp > 0) {
-                        gera_cod("STO", "1002");
+                        gera_cod("STO", "1004");
+                        indexExpAntFunc = indexExp;
+                        opAntFunc = operador;
                     }
 
                 }
@@ -953,11 +969,15 @@ case 31:
                 qtd_chama_param = 0;
                 isParam = false;
                 gera_cod("CALL", nome_call);
-                if (indexExp > 0) {
+                if (indexExpAntFunc > 0) {
+                    String aux = operador;
                     gera_cod("STO", "1003");
-                    gera_cod("LD", "1002");
-                    operador = opAnt;
+                    gera_cod("LD", "1004");
+                    operador = opAntFunc;
+                    flagOP = true;
                     gera_codVar(new Token(0, "1003", 0));
+                    flagOP = false;
+                    operador = aux;
 
                 }
                 break;
@@ -1001,7 +1021,7 @@ case 31:
                 }
 
                 break;
-            case 42: 
+            case 42:
                 tipo_exp = pilhaExp.pop();
                 resultAtrib = sTb.atribType(tipoStringToNum(buscaTipoTabela(buscaNomePeloEscopoInterno(pilhaEscopo.peek()))), tipo_exp);
                 if (resultAtrib == sTb.ERR) {
@@ -1083,7 +1103,9 @@ case 31:
                     flagOP = true;
 
                     // }
+                    operador = opAntVet;
                     gera_codVar(new Token(0, "1003", 0));
+                    operador = aux;
                     //if (!operador.equals("~")) {
                     flagOP = false;
                     if (isNot) {
@@ -1195,7 +1217,7 @@ case 31:
                     }
 
                     if (buscaTipoTabela(nome_func).equals("vazio") && seRetornou) {
-                        throw new SemanticError("ERRO: função " + nome_func + " não possui retorno ");
+                        warning += "WARNING: função " + nome_func + " não possui retorno ";
                     }
                     seRetornou = false;
                     gera_cod("RETURN", "0");
@@ -1203,7 +1225,7 @@ case 31:
 
                 break;
             case 68:
-                 nome = "_" + token.getLexeme();
+                nome = "_" + token.getLexeme();
                 if (!buscaNomeFun(nome)) {
                     throw new SemanticError("ERRO: Função: " + nome + " Não existe");
                 } else {
@@ -1218,8 +1240,8 @@ case 31:
                     pilhaExp.push(tipo_id);
                     insereUsada(nome, escopo);
                 }
-              break;
-            
+                break;
+
         }
 
     }

@@ -267,7 +267,7 @@ ID:[A-Z](_|[A-Z0-9])*
 
 <lista_comandos_escopo> ::= <comandos_escopo> <lista_comandos_escopo>  | <comandos_escopo> ; 
 <comandos_escopo>::= <declara_multi_var> PONTO_VIRGULA |<atribuicao_var> PONTO_VIRGULA  |<condicional> | <retorna> PONTO_VIRGULA |<repeticao> | <comentario> | <entrada_saida> PONTO_VIRGULA | <chamada_func_simples>;
-<chamada_func_simples> ::=  ID #50 <chama_func> PONTO_VIRGULA;
+<chamada_func_simples> ::=  ID #68 <chama_func>  PONTO_VIRGULA;
 
 
 <declara_var> ::=  <tipos_var> ID #2 <atribuicao> #12  
@@ -293,9 +293,9 @@ ID:[A-Z](_|[A-Z0-9])*
 <declara_multi_var_Composto>::= VIRGULA <declara_multi_var_simples> | î;
 
 
-<declara_func>::=  <tipos_var> ID#20 I_PARENTESES#10 <declara_param> F_PARENTESES#33 | <tipos_var> ID#20 I_PARENTESES#10 <declara_param> F_PARENTESES#33 <escopo> | <tipos_var> ID#20 I_PARENTESES#10  F_PARENTESES <escopo>;
+<declara_func>::=  <tipos_var> ID#20 I_PARENTESES#10 <declara_param> F_PARENTESES#33 | <tipos_var> ID#20 I_PARENTESES#10 <declara_param> F_PARENTESES#33 <escopo>#67 | <tipos_var> ID#20 I_PARENTESES#10  F_PARENTESES <escopo>#67;
 
-<chama_func>::=  I_PARENTESES <chama_param> #37 F_PARENTESES #38 | I_PARENTESES #37 F_PARENTESES #38;
+<chama_func>::=  I_PARENTESES#66 <chama_param> #37 F_PARENTESES #38 | I_PARENTESES #37 F_PARENTESES #38;
 <chama_param>::= <exp2>#35 <chama_multi_param> ; 
 <chama_multi_param>::= VIRGULA#32  <chama_param>| î;
 
